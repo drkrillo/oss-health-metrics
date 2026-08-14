@@ -61,16 +61,23 @@ def build_contributor_scatter(df: pd.DataFrame) -> go.Figure:
 
 
 def build_bot_signals(df: pd.DataFrame) -> go.Figure:
-    """Scatter: minutes_fork_to_first_action vs burst_events."""
-    forkers = df[df["has_fork"]].copy()
-    if forkers.empty:
+    """Scatter: minutes_fork_to_first_action vs burst_events.
+
+    Only contributors with a measurable fork-to-action delta are plotted.
+    Forking and then never coming back leaves the x-axis undefined, so those
+    rows are dropped here rather than silently discarded by Plotly.
+    """
+    measured = df[df["minutes_fork_to_first_action"].notna()].copy()
+    if measured.empty:
         fig = go.Figure()
-        fig.add_annotation(text="No fork data", showarrow=False, font_size=16)
+        fig.add_annotation(
+            text="No fork-to-action data", showarrow=False, font_size=16,
+        )
         apply_layout(fig)
         return fig
 
     fig = px.scatter(
-        forkers,
+        measured,
         x="minutes_fork_to_first_action",
         y="burst_events",
         size="total_events",

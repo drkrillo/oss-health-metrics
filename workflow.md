@@ -63,10 +63,17 @@ source .venv/bin/activate
 python -m pytest tests/ -q
 ```
 
-No buscan cobertura: cubren los invariantes que un gráfico puede violar sin
-fallar ni verse mal. Hoy: que las etapas del funnel estén anidadas
-(`tests/test_funnel.py`), porque si dejan de estarlo las conversiones siguen
-dibujándose pero dejan de ser ciertas.
+No buscan cobertura: cubren los invariantes que una métrica puede violar sin
+fallar ni verse mal, que son los que se publican como si fueran ciertos.
+
+- `test_funnel.py` — las etapas del funnel están anidadas. Si dejan de estarlo,
+  las conversiones se siguen dibujando pero dejan de significar algo.
+- `test_dim_contributors.py` — el delta fork→primera acción nunca es negativo.
+
+Los tests de SQL corren el `Transformer` de verdad sobre un dataset mínimo
+(`FIXTURE_CSVS` en `tests/conftest.py`) usando las queries de `sql/`, así que
+tocar un mart y romperlo falla acá. Para cubrir un caso nuevo, agregá filas al
+fixture en vez de armar una base aparte.
 
 ## Consultar datos
 

@@ -6,11 +6,25 @@ with events as (
     select * from fct_contributor_events
 ),
 
-first_non_fork as (
-    select repo, author, min(event_at) as first_non_fork_at
+forks as (
+    select repo, author, min(event_at) as forked_at
     from events
-    where event_type != 'fork'
+    where event_type = 'fork'
     group by repo, author
+),
+
+-- First action taken AFTER the fork.  Events before the fork are excluded on
+-- purpose: the metric asks how fast a fork turns into activity, so someone who
+-- was already commenting months earlier has no fork-to-action delta at all.
+-- Without this filter the delta goes negative and reads on the chart as an
+-- impossibly fast contributor.
+first_action_after_fork as (
+    select e.repo, e.author, min(e.event_at) as first_action_at
+    from events e
+    join forks f on e.repo = f.repo and e.author = f.author
+    where e.event_type != 'fork'
+      and e.event_at >= f.forked_at
+    group by e.repo, e.author
 ),
 
 summary as (
@@ -43,7 +57,7 @@ select
     (s.prs_merged > 0) as has_merged_pr,
     (s.total_events > 1) as returned_after_first,
     (s.forked_at is not null) as has_fork,
-    date_diff('minute', s.forked_at, fnf.first_non_fork_at) as minutes_fork_to_first_action,
+    date_diff('minute', s.forked_at, faf.first_action_at) as minutes_fork_to_first_action,
     case
         when s.prs_opened > 1 and s.prs_merged > 0 then 'repeat_contributor'
         when s.prs_merged > 0 then 'merged'
@@ -52,5 +66,5 @@ select
         else 'engaged'
     end as funnel_stage
 from summary s
-left join first_non_fork fnf
-    on s.repo = fnf.repo and s.author = fnf.author
+left join first_action_after_fork faf
+    on s.repo = faf.repo and s.author = faf.author

@@ -49,6 +49,12 @@ FUNNEL_ORDER = [
 # Plotly layout defaults
 # ---------------------------------------------------------------------------
 
+#: ``height`` is not decoration: the divs are rendered with Plotly's
+#: ``responsive`` mode, which takes the height from the container.  Inside the
+#: ``.two-col`` grid nothing gives the row a height, so a figure that does not
+#: state one collapses to a ~28px strip of overlapping axes.  Builders that
+#: need to grow with their data (one row per contributor, per open item) pass
+#: their own ``height=`` and override this.
 LAYOUT_DEFAULTS: dict = dict(
     template="plotly_dark",
     paper_bgcolor=COLORS["bg"],
@@ -56,6 +62,7 @@ LAYOUT_DEFAULTS: dict = dict(
     font=dict(family="Inter, system-ui, sans-serif", color=COLORS["text"], size=13),
     margin=dict(l=80, r=30, t=40, b=50),
     hoverlabel=dict(bgcolor=COLORS["card_bg"], font_size=12),
+    height=450,
 )
 
 # ---------------------------------------------------------------------------
