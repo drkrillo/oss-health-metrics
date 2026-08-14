@@ -3,6 +3,18 @@
 --
 -- IMPORTANT: In repos where the maintainer creates issues,
 -- "time to first response" on issues = time until the COMMUNITY engages.
+--
+-- A merge counts as a response.  Attending a PR by merging it is the strongest
+-- response there is, and only someone with write access can do it, so there is
+-- no doubt about who acted.  Leaving it out silently dropped every PR that was
+-- merged without discussion — on good-first-issues that was 64 of 114 PRs,
+-- most of them merged within the hour, which biased the metric towards exactly
+-- the slow cases it was meant to detect.
+--
+-- Closing WITHOUT merging deliberately does not count: the API does not tell us
+-- who closed the item, and authors close their own PRs and issues all the time.
+-- Those stay NULL, which makes `first_response_at is null` a real signal —
+-- items that got no engagement at all before being closed.
 
 with
 
@@ -28,10 +40,13 @@ prs as (
     select
         p.repo, 'pr' as item_type, p.pr_number as item_number,
         p.author, p.state, p.created_at, p.merged_at, p.closed_at,
-        least(fc.first_comment_at, fr.first_review_at) as first_response_at,
-        date_diff('hour', p.created_at,
-            least(fc.first_comment_at, fr.first_review_at)
-        ) as hours_to_first_response,
+        least(fc.first_comment_at, fr.first_review_at, p.merged_at) as first_response_at,
+        -- least() ignores NULLs, so this names whichever one actually won.
+        case least(fc.first_comment_at, fr.first_review_at, p.merged_at)
+            when fc.first_comment_at then 'comment'
+            when fr.first_review_at  then 'review'
+            when p.merged_at         then 'merge'
+        end as first_response_type,
         date_diff('hour', p.created_at, p.merged_at) as hours_to_merge
     from stg_pull_requests p
     left join pr_first_comment fc on p.repo = fc.repo and p.pr_number = fc.pr_number
@@ -52,13 +67,20 @@ issues as (
         i.repo, 'issue' as item_type, i.issue_number as item_number,
         i.author, i.state, i.created_at, null::timestamp as merged_at, i.closed_at,
         fc.first_comment_at as first_response_at,
-        date_diff('hour', i.created_at, fc.first_comment_at) as hours_to_first_response,
+        case when fc.first_comment_at is not null then 'comment' end as first_response_type,
         null::bigint as hours_to_merge
     from stg_issues i
     left join issue_first_comment fc
         on i.repo = fc.repo and i.issue_number = fc.issue_number
+),
+
+items as (
+    select * from prs
+    union all
+    select * from issues
 )
 
-select * from prs
-union all
-select * from issues
+select
+    *,
+    date_diff('hour', created_at, first_response_at) as hours_to_first_response
+from items

@@ -12,8 +12,8 @@ from ._layout import apply_layout, apply_time_axis
 def build_response_times(df: pd.DataFrame) -> go.Figure:
     """Scatter plot of hours to first response with rolling average.
 
-    customdata layout: [item_number, author, url] — index 2 is the URL
-    used by clickable div for click-to-open.
+    customdata layout: [item_number, author, url, first_response_type] —
+    index 2 is the URL used by clickable div for click-to-open.
     """
     df = df[df["hours_to_first_response"].notna()].copy()
     df = df.sort_values("created_at")
@@ -32,10 +32,12 @@ def build_response_times(df: pd.DataFrame) -> go.Figure:
             marker=dict(color=color, size=7, opacity=0.6),
             hovertemplate=(
                 "#%{customdata[0]} by %{customdata[1]}<br>"
-                "%{y:.0f} hours<br>"
+                "%{y:.0f} hours to first %{customdata[3]}<br>"
                 "<i>Click to open on GitHub</i><extra></extra>"
             ),
-            customdata=subset[["item_number", "author", "url"]].values,
+            customdata=subset[
+                ["item_number", "author", "url", "first_response_type"]
+            ].values,
         ))
 
     if len(df) >= 5:

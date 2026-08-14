@@ -64,7 +64,13 @@ class DashboardData:
         return {
             "total_contributors": total,
             "waiting_on_maintainer": waiting,
-            "median_response_hours": round(median_resp, 1) if median_resp else "N/A",
-            "cycle_time_weeks": round(cycle[0], 1) if cycle else "N/A",
+            # A median of 0 is a real answer — most PRs here are merged within
+            # the hour — so test for None, not for falsiness.
+            "median_response_hours": (
+                round(median_resp, 1) if median_resp is not None else "N/A"
+            ),
+            "cycle_time_weeks": (
+                round(cycle[0], 1) if cycle is not None else "N/A"
+            ),
             "repos": [r[0] for r in repos],
         }

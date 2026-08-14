@@ -21,6 +21,8 @@ from transform import Transformer  # noqa: E402  — needs the path above
 #: - ``bob``    forked after commenting once and never came back
 #: - ``carol``  forked and opened a PR 30 seconds later
 #: - ``dave``   is the maintainer: never forks, reviews and opens issues
+#: - ``erin``   never forks either; one of her PRs is merged without a word,
+#:   the other is closed without one (the two response-time edge cases)
 #:
 #: Timestamps are UTC with the ``Z`` suffix, exactly as the GitHub API returns
 #: them, so staging is exercised on realistic input.
@@ -40,6 +42,8 @@ FIXTURE_CSVS = {
         "repo,number,title,state,author,merged_at,created_at,closed_at,updated_at",
         "acme/widget,2,Fix it,closed,alice,2026-03-02T12:00:00Z,2026-03-01T10:30:00Z,2026-03-02T12:00:00Z,2026-03-02T12:00:00Z",
         "acme/widget,3,Another,open,carol,,2026-03-01T10:00:30Z,,2026-03-01T10:00:30Z",
+        "acme/widget,5,Merged in silence,closed,erin,2026-03-05T10:00:00Z,2026-03-05T09:00:00Z,2026-03-05T10:00:00Z,2026-03-05T10:00:00Z",
+        "acme/widget,6,Closed in silence,closed,erin,,2026-03-06T09:00:00Z,2026-03-07T09:00:00Z,2026-03-07T09:00:00Z",
     ],
     "issue_comments.csv": [
         "repo,comment_id,issue_number,author,author_association,created_at,updated_at",
