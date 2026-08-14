@@ -37,17 +37,13 @@ EVENT_COLORS = {
 # Funnel constants
 # ---------------------------------------------------------------------------
 
+#: Legend/colour order for ``dim_contributors.funnel_stage``.  These stages are
+#: mutually exclusive (each contributor gets exactly one) and are NOT nested,
+#: so they order a legend — they are not the funnel itself.  The funnel chart
+#: defines its own nested steps in ``charts/funnel.py``.
 FUNNEL_ORDER = [
     "engaged", "forked", "pr_opened", "merged", "repeat_contributor",
 ]
-
-FUNNEL_LABELS = {
-    "engaged": "Engaged (comment/review only)",
-    "forked": "Forked (no PR yet)",
-    "pr_opened": "PR Opened (not merged)",
-    "merged": "Merged (1 PR)",
-    "repeat_contributor": "Repeat Contributor (>1 PR)",
-}
 
 # ---------------------------------------------------------------------------
 # Plotly layout defaults

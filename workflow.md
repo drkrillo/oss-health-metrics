@@ -25,6 +25,7 @@ oss-health-metrics/
 │       ├── fct_open_items.sql
 │       ├── fct_weekly_pulse.sql
 │       └── dim_contributors.sql
+├── tests/                  # Tests de los invariantes que no se ven a simple vista
 ├── data/
 │   ├── raw/                # CSVs crudos (output de extract.py, gitignored)
 │   └── oss_health.duckdb   # Base DuckDB (gitignored)
@@ -54,6 +55,18 @@ cd src && python extract.py && cd ..
 # 2. Transformar CSVs → DuckDB
 cd src && python transform.py && cd ..
 ```
+
+## Tests
+
+```bash
+source .venv/bin/activate
+python -m pytest tests/ -q
+```
+
+No buscan cobertura: cubren los invariantes que un gráfico puede violar sin
+fallar ni verse mal. Hoy: que las etapas del funnel estén anidadas
+(`tests/test_funnel.py`), porque si dejan de estarlo las conversiones siguen
+dibujándose pero dejan de ser ciertas.
 
 ## Consultar datos
 
