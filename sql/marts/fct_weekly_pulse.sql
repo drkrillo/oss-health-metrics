@@ -6,7 +6,7 @@ with
 week_bounds as (
     select repo,
         date_trunc('week', min(created_at))::date as first_week,
-        date_trunc('week', current_date)::date    as last_week
+        date_trunc('week', utc_now())::date    as last_week
     from stg_pull_requests
     group by repo
 ),

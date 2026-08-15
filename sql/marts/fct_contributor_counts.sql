@@ -15,9 +15,9 @@ with events as (
 
 windows(window_key, cutoff) as (
     values
-        ('30d', current_timestamp - interval '30 days'),
-        ('90d', current_timestamp - interval '90 days'),
-        ('1y',  current_timestamp - interval '365 days'),
+        ('30d', utc_now() - interval '30 days'),
+        ('90d', utc_now() - interval '90 days'),
+        ('1y',  utc_now() - interval '365 days'),
         ('all', timestamp '1970-01-01')
 )
 

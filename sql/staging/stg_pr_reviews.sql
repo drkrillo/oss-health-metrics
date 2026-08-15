@@ -1,3 +1,4 @@
+-- Timestamps go through UTC explicitly — see stg_issues.sql.
 select
     repo,
     pr_number,
@@ -5,5 +6,5 @@ select
     author,
     author_association,
     state           as review_state,
-    submitted_at::timestamp as submitted_at
+    submitted_at::timestamptz AT TIME ZONE 'UTC' as submitted_at
 from {source}
