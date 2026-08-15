@@ -161,6 +161,11 @@ def render_contributors(data: DashboardData) -> str:
 
 <div class="chart-section">
     <h2>Contributor Funnel</h2>
+    <p style="color:{COLORS['secondary']};font-size:0.85rem;margin-bottom:12px">
+        CHAOSS Conversion Rate developer levels. D0 = forked, D1 = issue /
+        comment / review, D2 = opened &amp; merged a PR. Each bar is an
+        independent cohort; the percentage is the conversion from the level
+        above.</p>
     {plotly_div(build_funnel(data.contributors))}
 </div>
 
