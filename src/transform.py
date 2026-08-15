@@ -50,6 +50,17 @@ class Transformer:
         ("fct_contributor_counts",  "marts/fct_contributor_counts.sql"),
     ]
 
+    #: GitHub returns UTC and staging casts it to a naive ``TIMESTAMP``, but
+    #: DuckDB's ``current_timestamp`` is a ``TIMESTAMP WITH TIME ZONE`` in the
+    #: session's zone.  Comparing the two makes every "how long ago" answer
+    #: wrong by the local UTC offset — and right again under GitHub Actions,
+    #: which runs in UTC, so the dashboard would disagree with itself
+    #: depending on who built it.  Every mart reads the clock through this
+    #: macro so there is one definition of "now" and it is always UTC.
+    MACROS = [
+        "CREATE OR REPLACE MACRO utc_now() AS (now() AT TIME ZONE 'UTC')",
+    ]
+
     def __init__(self, db_path: Path, raw_dir: Path, sql_dir: Path) -> None:
         self._db_path = db_path
         self._raw_dir = raw_dir
@@ -91,6 +102,13 @@ class Transformer:
 
     # -- pipeline --------------------------------------------------------------
 
+    def _create_macros(self) -> None:
+        """Create SQL macros the marts depend on."""
+        assert self._con is not None
+        logger.info("Creating macros...")
+        for sql in self.MACROS:
+            self._con.execute(sql)
+
     def _create_staging(self) -> None:
         """Create staging views that read and type-cast raw CSVs."""
         logger.info("Creating staging views...")
@@ -110,10 +128,11 @@ class Transformer:
     # -- public API ------------------------------------------------------------
 
     def run(self) -> None:
-        """Execute the full transform pipeline: staging views then mart tables."""
+        """Execute the full transform pipeline: macros, staging views, marts."""
         logger.info("Connecting to %s", self._db_path)
         self._connect()
         try:
+            self._create_macros()
             self._create_staging()
             self._create_marts()
             logger.info("Done. All tables created in %s", self._db_path)

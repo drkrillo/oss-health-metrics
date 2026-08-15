@@ -57,22 +57,28 @@ FIXTURE_CSVS = {
 }
 
 
-@pytest.fixture(scope="session")
-def marts(tmp_path_factory) -> duckdb.DuckDBPyConnection:
-    """Run the real transform over FIXTURE_CSVS and hand back a connection.
+def build_marts(base: Path, csvs: dict[str, list[str]]) -> duckdb.DuckDBPyConnection:
+    """Run the real transform over ``csvs`` and return a read-only connection.
 
     Uses the production SQL from ``sql/`` rather than a copy, so a query that
-    regresses fails here.
+    regresses fails here.  Exposed for test modules that need a repo shaped
+    differently from :data:`FIXTURE_CSVS`: several tests assert exact totals
+    over the shared fixture, so adding rows to it to cover one mart breaks the
+    others.
     """
-    base = tmp_path_factory.mktemp("marts")
     raw_dir = base / "raw"
     raw_dir.mkdir()
-    for name, lines in FIXTURE_CSVS.items():
+    for name, lines in csvs.items():
         (raw_dir / name).write_text("\n".join(lines) + "\n")
 
     db_path = base / "test.duckdb"
     Transformer(db_path=db_path, raw_dir=raw_dir, sql_dir=ROOT / "sql").run()
+    return duckdb.connect(str(db_path), read_only=True)
 
-    con = duckdb.connect(str(db_path), read_only=True)
+
+@pytest.fixture(scope="session")
+def marts(tmp_path_factory) -> duckdb.DuckDBPyConnection:
+    """The shared fixture repo, transformed."""
+    con = build_marts(tmp_path_factory.mktemp("marts"), FIXTURE_CSVS)
     yield con
     con.close()

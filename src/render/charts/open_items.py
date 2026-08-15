@@ -8,6 +8,15 @@ import plotly.graph_objects as go
 from ..theme import COLORS
 from ._layout import apply_layout
 
+#: Colour per ``fct_open_items.waiting_on`` state.  "nobody" is the team's own
+#: backlog — real, but not somebody being kept waiting — so it reads as muted
+#: rather than as either a debt (red) or a handoff (green).
+BALL_COLORS = {
+    "maintainer": COLORS["danger"],
+    "contributor": COLORS["success"],
+    "nobody": COLORS["secondary"],
+}
+
 
 def build_open_items(df: pd.DataFrame) -> go.Figure:
     """Horizontal bar chart — who has the ball."""
@@ -21,10 +30,7 @@ def build_open_items(df: pd.DataFrame) -> go.Figure:
     df["label"] = df.apply(
         lambda r: f"#{r['item_number']} {r['title'][:50]}", axis=1,
     )
-    df["color"] = df["waiting_on"].map({
-        "maintainer": COLORS["danger"],
-        "contributor": COLORS["success"],
-    })
+    df["color"] = df["waiting_on"].map(BALL_COLORS).fillna(COLORS["secondary"])
     df["display_hours"] = df["hours_waiting"].clip(lower=1)
     df["url"] = df.apply(
         lambda r: f"https://github.com/{r['repo']}/issues/{r['item_number']}",
