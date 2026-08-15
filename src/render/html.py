@@ -282,6 +282,62 @@ _CAB_WINDOWS = [("30d", "30d"), ("90d", "90d"), ("1y", "1Y"), ("all", "All")]
 _CAB_DEFS = [("normal", "Normal"), ("strict", "Strict")]
 
 
+def windowed_kpi_card(
+    uid: str,
+    label: str,
+    data: dict,
+    default_window: str = "all",
+    color: str = COLORS["text"],
+) -> str:
+    """KPI card whose value switches by trailing window, client-side.
+
+    Parameters
+    ----------
+    uid:
+        Unique element-id prefix (one card per uid on a page).
+    data:
+        ``{window_key: {"value": str, "sub": str}}`` — values are preformatted.
+    """
+    btns = f'<div class="range-btns" data-cardwin="{uid}">'
+    for val, lbl in _CAB_WINDOWS:
+        active = ' class="active"' if val == default_window else ""
+        btns += f'<button data-w="{val}"{active}>{lbl}</button>'
+    btns += "</div>"
+
+    cur = data.get(default_window, {})
+    value = cur.get("value", "—")
+    sub = cur.get("sub", "")
+
+    return f"""<div class="kpi-card kpi-cab">
+    <div class="value" id="{uid}-value" style="color:{color}">{value}</div>
+    <div class="label">{label} <span class="cab-sub" id="{uid}-sub">{sub}</span></div>
+    {btns}
+</div>
+<script>
+(function() {{
+    var DATA = {json.dumps(data)};
+    var win = {json.dumps(default_window)};
+    var valEl = document.getElementById('{uid}-value');
+    var subEl = document.getElementById('{uid}-sub');
+    function update() {{
+        var cell = DATA[win] || {{}};
+        valEl.textContent = cell.value || '—';
+        subEl.textContent = cell.sub || '';
+    }}
+    var btns = document.querySelectorAll('[data-cardwin="{uid}"] button');
+    btns.forEach(function(b) {{
+        b.addEventListener('click', function() {{
+            btns.forEach(function(x) {{ x.classList.remove('active'); }});
+            b.classList.add('active');
+            win = b.dataset.w;
+            update();
+        }});
+    }});
+    update();
+}})();
+</script>"""
+
+
 def contributor_absence_card(
     absence: dict,
     default_window: str = "all",

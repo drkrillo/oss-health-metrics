@@ -31,6 +31,7 @@ from .html import (
     plotly_div,
     reset_div_counter,
     time_series_div,
+    windowed_kpi_card,
 )
 from .theme import COLORS
 
@@ -44,6 +45,7 @@ logger = logging.getLogger("oss.render")
 def render_index(data: DashboardData) -> str:
     kpis = data.kpis()
     repo_label = ", ".join(kpis["repos"]) if kpis["repos"] else "No data"
+    duration, closure = data.change_request_flow()
 
     body = f"""
 <header>
@@ -55,7 +57,8 @@ def render_index(data: DashboardData) -> str:
     {kpi_card(kpis["total_contributors"], "Total Contributors", COLORS["primary"])}
     {kpi_card(kpis["waiting_on_maintainer"], "Waiting on Maintainer", COLORS["danger"])}
     {kpi_card(f'{kpis["median_response_hours"]}h', "Median Response Time", COLORS["accent"])}
-    {kpi_card(f'{kpis["cycle_time_weeks"]}w', "Current Cycle Time", COLORS["purple"])}
+    {windowed_kpi_card("crd", "Change Request Duration", duration, color=COLORS["purple"])}
+    {windowed_kpi_card("crr", "Change Request Closure Ratio", closure, color=COLORS["success"])}
     {contributor_absence_card(data.contributor_absence())}
 </div>
 
@@ -107,7 +110,9 @@ def render_weekly_pulse(data: DashboardData) -> str:
     body = f"""
 <header>
     <h1>Weekly Pulse &mdash; Little's Law</h1>
-    <p>WIP, throughput, and cycle time per week. Cycle Time = WIP / Throughput (4-week avg).</p>
+    <p>Flow view: WIP and throughput per week. Cycle time here is a derived
+    <em>estimate</em> (WIP / throughput); the canonical cycle time is the CHAOSS
+    Change Request Duration shown on the overview.</p>
 </header>
 <div class="chart-section">
     {time_series_div(build_weekly_pulse(data.weekly_pulse))}

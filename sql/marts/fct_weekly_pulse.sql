@@ -42,7 +42,13 @@ weekly_flow as (
         coalesce(c.prs_merged, 0) as prs_merged,
         sum(coalesce(o.prs_opened, 0)) over w
             - sum(coalesce(c.prs_closed, 0)) over w as wip,
-        avg(coalesce(c.prs_merged, 0)) over (
+        -- Throughput must be the SAME exit that drains the WIP, or the two
+        -- sides of Little's Law disagree. WIP drops on every close, so
+        -- throughput counts every close (merged or not), not merges alone —
+        -- otherwise ~21% of exits (closed-without-merge) go uncounted and the
+        -- cycle-time estimate inflates. This is a derived flow ESTIMATE; the
+        -- canonical cycle time is CHAOSS Change Requests Duration.
+        avg(coalesce(c.prs_closed, 0)) over (
             partition by aw.repo order by aw.week_start
             rows between 3 preceding and current row
         ) as throughput_4w_avg

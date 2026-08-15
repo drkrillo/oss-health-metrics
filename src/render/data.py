@@ -8,6 +8,17 @@ import duckdb
 import pandas as pd
 
 
+def _fmt_duration(minutes: float | None) -> str:
+    """Format a minute count as the largest sensible unit: m / h / d."""
+    if minutes is None:
+        return "—"
+    if minutes < 60:
+        return f"{round(minutes)}m"
+    if minutes < 1440:
+        return f"{minutes / 60:.1f}h"
+    return f"{minutes / 1440:.1f}d"
+
+
 class DashboardData:
     """Read-only connection to the DuckDB analytical store."""
 
@@ -59,6 +70,28 @@ class DashboardData:
                 "top_pct": float(top_pct) if top_pct is not None else None,
             }
         return out
+
+    def change_request_flow(self) -> tuple[dict, dict]:
+        """Two window-keyed card dicts: (duration, closure_ratio).
+
+        Values are preformatted for :func:`windowed_kpi_card`.
+        """
+        rows = self.con.execute(
+            "SELECT window_key, opened, closed, merged, closure_ratio, median_merge_minutes "
+            "FROM fct_change_request_flow"
+        ).fetchall()
+        duration: dict = {}
+        closure: dict = {}
+        for window_key, opened, closed, merged, ratio, minutes in rows:
+            duration[window_key] = {
+                "value": _fmt_duration(minutes),
+                "sub": f"median over {int(merged)} merged" if minutes is not None else "no merges",
+            }
+            closure[window_key] = {
+                "value": f"{ratio:.2f}×" if ratio is not None else "—",
+                "sub": f"{int(closed)} closed / {int(opened)} opened",
+            }
+        return duration, closure
 
     def kpis(self) -> dict:
         """Aggregate KPI values for the overview cards."""

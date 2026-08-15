@@ -45,6 +45,7 @@ class Transformer:
         ("fct_weekly_pulse",       "marts/fct_weekly_pulse.sql"),
         ("dim_contributors",       "marts/dim_contributors.sql"),
         ("fct_contributor_absence", "marts/fct_contributor_absence.sql"),
+        ("fct_change_request_flow", "marts/fct_change_request_flow.sql"),
     ]
 
     def __init__(self, db_path: Path, raw_dir: Path, sql_dir: Path) -> None:

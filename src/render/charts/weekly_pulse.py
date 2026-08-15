@@ -45,7 +45,7 @@ def build_weekly_pulse(df: pd.DataFrame) -> go.Figure:
     fig.add_trace(
         go.Scatter(
             x=ct["week_start"], y=ct["cycle_time_weeks"],
-            name="Cycle Time (weeks)", mode="lines",
+            name="Cycle Time est. (WIP/throughput)", mode="lines",
             line=dict(color=COLORS["purple"], width=2, dash="dot"),
         ),
         secondary_y=True,
@@ -53,6 +53,6 @@ def build_weekly_pulse(df: pd.DataFrame) -> go.Figure:
 
     apply_layout(fig, barmode="group")
     fig.update_yaxes(title_text="PRs / WIP", secondary_y=False)
-    fig.update_yaxes(title_text="Cycle Time (weeks)", secondary_y=True)
+    fig.update_yaxes(title_text="Cycle Time est. (weeks)", secondary_y=True)
     apply_time_axis(fig)
     return fig
