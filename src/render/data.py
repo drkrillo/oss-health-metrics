@@ -110,6 +110,24 @@ class DashboardData:
             }
         return out
 
+    def contributor_counts(self) -> dict:
+        """Total vs active contributor counts, nested by window then kind.
+
+        Shape: {window_key: {"total"|"active": {"value": str, "sub": str}}}.
+        """
+        rows = self.con.execute(
+            "SELECT window_key, total_contributors, active_contributors "
+            "FROM fct_contributor_counts"
+        ).fetchall()
+        out: dict = {}
+        for window_key, total, active in rows:
+            lurkers = int(total) - int(active)
+            out[window_key] = {
+                "total": {"value": str(int(total)), "sub": f"{lurkers} fork/lurk only"},
+                "active": {"value": str(int(active)), "sub": "made a contribution"},
+            }
+        return out
+
     def kpis(self) -> dict:
         """Aggregate KPI values for the overview cards."""
         total = self.con.execute(

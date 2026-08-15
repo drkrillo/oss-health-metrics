@@ -55,7 +55,9 @@ def render_index(data: DashboardData) -> str:
 </header>
 
 <div class="kpi-row">
-    {kpi_card(kpis["total_contributors"], "Total Contributors", COLORS["primary"])}
+    {windowed_kpi_card_2d("cnt", "Contributors", data.contributor_counts(),
+        secondary=[("total", "Total"), ("active", "Active")],
+        color=COLORS["primary"])}
     {kpi_card(kpis["waiting_on_maintainer"], "Waiting on Maintainer", COLORS["danger"])}
     {windowed_kpi_card_2d("ttfr", "Time to First Response", data.response_time_summary(),
         secondary=[("all", "All"), ("pr", "PRs"), ("issue", "Issues")],
