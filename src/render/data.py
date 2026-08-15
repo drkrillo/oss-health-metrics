@@ -93,6 +93,23 @@ class DashboardData:
             }
         return duration, closure
 
+    def response_time_summary(self) -> dict:
+        """Median TtFR nested by window then item type, for the 2D KPI card.
+
+        Shape: {window_key: {type_key: {"value": str, "sub": str}}}.
+        """
+        rows = self.con.execute(
+            "SELECT window_key, type_key, n_items, median_hours "
+            "FROM fct_response_time_summary"
+        ).fetchall()
+        out: dict = {}
+        for window_key, type_key, n_items, median_hours in rows:
+            out.setdefault(window_key, {})[type_key] = {
+                "value": _fmt_duration(median_hours * 60 if median_hours is not None else None),
+                "sub": f"median over {int(n_items)}",
+            }
+        return out
+
     def kpis(self) -> dict:
         """Aggregate KPI values for the overview cards."""
         total = self.con.execute(

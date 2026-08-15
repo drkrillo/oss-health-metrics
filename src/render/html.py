@@ -338,6 +338,69 @@ def windowed_kpi_card(
 </script>"""
 
 
+def windowed_kpi_card_2d(
+    uid: str,
+    label: str,
+    data: dict,
+    secondary: list[tuple[str, str]],
+    default_window: str = "all",
+    default_secondary: str | None = None,
+    color: str = COLORS["text"],
+) -> str:
+    """KPI card with two independent button rows: window and a secondary axis.
+
+    ``data`` is ``{window_key: {secondary_key: {"value": str, "sub": str}}}``.
+    Used for metrics split two ways (e.g. Time to First Response by window and
+    by item type). One card per ``uid`` on a page.
+    """
+    default_secondary = default_secondary or secondary[0][0]
+
+    def _btns(css_cls: str, attr: str, opts: list, default: str) -> str:
+        html = f'<div class="range-btns {css_cls}">'
+        for val, lbl in opts:
+            active = ' class="active"' if val == default else ""
+            html += f'<button data-{attr}="{val}"{active}>{lbl}</button>'
+        return html + "</div>"
+
+    cur = data.get(default_window, {}).get(default_secondary, {})
+    value = cur.get("value", "—")
+    sub = cur.get("sub", "")
+
+    return f"""<div class="kpi-card kpi-cab">
+    <div class="value" id="{uid}-value" style="color:{color}">{value}</div>
+    <div class="label">{label} <span class="cab-sub" id="{uid}-sub">{sub}</span></div>
+    {_btns(f"{uid}-win", "w", _CAB_WINDOWS, default_window)}
+    {_btns(f"{uid}-sec", "s", secondary, default_secondary)}
+</div>
+<script>
+(function() {{
+    var DATA = {json.dumps(data)};
+    var win = {json.dumps(default_window)}, sec = {json.dumps(default_secondary)};
+    var valEl = document.getElementById('{uid}-value');
+    var subEl = document.getElementById('{uid}-sub');
+    function update() {{
+        var cell = ((DATA[win] || {{}})[sec]) || {{}};
+        valEl.textContent = cell.value || '—';
+        subEl.textContent = cell.sub || '';
+    }}
+    function wire(sel, attr, apply) {{
+        var btns = document.querySelectorAll(sel + ' button');
+        btns.forEach(function(b) {{
+            b.addEventListener('click', function() {{
+                btns.forEach(function(x) {{ x.classList.remove('active'); }});
+                b.classList.add('active');
+                apply(b.dataset[attr]);
+                update();
+            }});
+        }});
+    }}
+    wire('.{uid}-win', 'w', function(v) {{ win = v; }});
+    wire('.{uid}-sec', 's', function(v) {{ sec = v; }});
+    update();
+}})();
+</script>"""
+
+
 def contributor_absence_card(
     absence: dict,
     default_window: str = "all",

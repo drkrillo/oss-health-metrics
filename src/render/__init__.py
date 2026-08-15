@@ -32,6 +32,7 @@ from .html import (
     reset_div_counter,
     time_series_div,
     windowed_kpi_card,
+    windowed_kpi_card_2d,
 )
 from .theme import COLORS
 
@@ -56,7 +57,9 @@ def render_index(data: DashboardData) -> str:
 <div class="kpi-row">
     {kpi_card(kpis["total_contributors"], "Total Contributors", COLORS["primary"])}
     {kpi_card(kpis["waiting_on_maintainer"], "Waiting on Maintainer", COLORS["danger"])}
-    {kpi_card(f'{kpis["median_response_hours"]}h', "Median Response Time", COLORS["accent"])}
+    {windowed_kpi_card_2d("ttfr", "Time to First Response", data.response_time_summary(),
+        secondary=[("all", "All"), ("pr", "PRs"), ("issue", "Issues")],
+        color=COLORS["accent"])}
     {windowed_kpi_card("crd", "Change Request Duration", duration, color=COLORS["purple"])}
     {windowed_kpi_card("crr", "Change Request Closure Ratio", closure, color=COLORS["success"])}
     {contributor_absence_card(data.contributor_absence())}
@@ -92,7 +95,7 @@ def render_index(data: DashboardData) -> str:
         <h2>Time to First Response</h2>
         <a class="detail-link" href="response_times.html">View detail &rarr;</a>
     </div>
-    {time_series_div(build_response_times(data.response_times), clickable_url_index=2, default_months=1)}
+    {time_series_div(build_response_times(data.response_times))}
 </div>
 
 <div class="chart-section">
@@ -125,10 +128,12 @@ def render_response_times(data: DashboardData) -> str:
     body = f"""
 <header>
     <h1>Time to First Response</h1>
-    <p>Hours from PR/issue creation to first external response (comment or review from non-author).</p>
+    <p>Monthly <em>median</em> hours from a PR/issue being opened to the first
+    response from a real person (author's own actions and bots excluded),
+    split by activity type — the CHAOSS-recommended trend view.</p>
 </header>
 <div class="chart-section">
-    {time_series_div(build_response_times(data.response_times), clickable_url_index=2)}
+    {time_series_div(build_response_times(data.response_times))}
 </div>
 """
     return page_shell("Response Times — OSS Health", body, NAV)

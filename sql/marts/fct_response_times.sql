@@ -23,7 +23,11 @@ pr_first_comment as (
     from stg_issue_comments c
     inner join stg_pull_requests p
         on c.repo = p.repo and c.issue_number = p.pr_number
+    -- Exclude the author's own comments, and bots: CHAOSS counts only replies
+    -- from real people ("filter bots"). A CI/dependabot comment is not a first
+    -- response. GitHub App accounts always end in "[bot]".
     where c.author != p.author
+      and c.author not like '%[bot]'
     group by c.repo, c.issue_number
 ),
 
@@ -33,6 +37,7 @@ pr_first_review as (
     inner join stg_pull_requests p
         on r.repo = p.repo and r.pr_number = p.pr_number
     where r.author != p.author
+      and r.author not like '%[bot]'
     group by r.repo, r.pr_number
 ),
 
@@ -59,6 +64,7 @@ issue_first_comment as (
     inner join stg_issues i
         on c.repo = i.repo and c.issue_number = i.issue_number
     where c.author != i.author
+      and c.author not like '%[bot]'
     group by c.repo, c.issue_number
 ),
 
