@@ -17,15 +17,44 @@ BALL_COLORS = {
     "nobody": COLORS["secondary"],
 }
 
+#: How many rows the overview shows.  One bar per open item is readable at
+#: eight and a 10,000px column at two hundred, and the overview is meant to be
+#: a to-do list rather than an inventory — the detail page keeps everything.
+OVERVIEW_LIMIT = 5
 
-def build_open_items(df: pd.DataFrame) -> go.Figure:
-    """Horizontal bar chart — who has the ball."""
+
+def _empty(text: str) -> go.Figure:
+    fig = go.Figure()
+    fig.add_annotation(text=text, showarrow=False, font_size=16)
+    apply_layout(fig)
+    return fig
+
+
+def build_open_items(
+    df: pd.DataFrame,
+    waiting_on: str | None = None,
+    limit: int | None = None,
+) -> go.Figure:
+    """Horizontal bar chart — who has the ball.
+
+    ``waiting_on`` narrows to a single ball state and ``limit`` keeps only the
+    longest-waiting rows.  The overview passes both to ask the one question a
+    maintainer opens a dashboard for — what is waiting on me right now — while
+    the detail page passes neither and shows every open item.
+    """
     if df.empty:
-        fig = go.Figure()
-        fig.add_annotation(text="No open items", showarrow=False, font_size=16)
-        apply_layout(fig)
-        return fig
+        return _empty("No open items")
 
+    if waiting_on is not None:
+        df = df[df["waiting_on"] == waiting_on]
+        if df.empty:
+            return _empty("Nothing is waiting on the team")
+
+    if limit is not None:
+        df = df.nlargest(limit, "hours_waiting")
+
+    # Plotly draws the first category at the bottom of a horizontal bar chart,
+    # so sorting ascending is what puts the longest wait at the top.
     df = df.sort_values("hours_waiting", ascending=True).copy()
     df["label"] = df.apply(
         lambda r: f"#{r['item_number']} {r['title'][:50]}", axis=1,

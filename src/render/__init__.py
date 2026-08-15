@@ -12,6 +12,7 @@ from pathlib import Path
 from log import setup_logging
 
 from .charts import (
+    OVERVIEW_LIMIT,
     build_community_activity,
     build_contributor_scatter,
     build_contributor_timeline,
@@ -47,6 +48,7 @@ def render_index(data: DashboardData) -> str:
     kpis = data.kpis()
     repo_label = ", ".join(kpis["repos"]) if kpis["repos"] else "No data"
     duration, closure = data.change_request_flow()
+    open_items = data.open_items
 
     body = f"""
 <header>
@@ -78,10 +80,13 @@ def render_index(data: DashboardData) -> str:
 <div class="two-col">
     <div class="chart-section">
         <div class="section-header">
-            <h2>Who Has The Ball</h2>
-            <a class="detail-link" href="open_items.html">View detail &rarr;</a>
+            <h2>Waiting On You</h2>
+            <a class="detail-link" href="open_items.html">All {len(open_items)} open &rarr;</a>
         </div>
-        {clickable_plotly_div(build_open_items(data.open_items), "open-items-index")}
+        {clickable_plotly_div(
+            build_open_items(open_items, waiting_on="maintainer",
+                             limit=OVERVIEW_LIMIT),
+            "open-items-index")}
     </div>
     <div class="chart-section">
         <div class="section-header">
@@ -145,7 +150,14 @@ def render_open_items(data: DashboardData) -> str:
     body = f"""
 <header>
     <h1>Who Has The Ball</h1>
-    <p>Every open PR and issue — who needs to act next, and how long they've been waiting.</p>
+    <p>Every open PR and issue — who needs to act next, and how long they've
+    been waiting. <span style="color:{COLORS['danger']}">Red</span> is response
+    debt: somebody outside the team is waiting on a reply, and it is the only
+    state the overview shows.
+    <span style="color:{COLORS['success']}">Green</span> means the team already
+    answered and the next move is theirs.
+    <span style="color:{COLORS['secondary']}">Grey</span> is the team's own
+    backlog, where nobody is being kept waiting.</p>
 </header>
 <div class="chart-section">
     {clickable_plotly_div(build_open_items(data.open_items), "open-items-detail")}

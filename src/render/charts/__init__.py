@@ -7,11 +7,12 @@ from .contributors import (
     build_contributor_timeline,
 )
 from .funnel import build_funnel
-from .open_items import build_open_items
+from .open_items import OVERVIEW_LIMIT, build_open_items
 from .response_times import build_response_times
 from .weekly_pulse import build_weekly_pulse
 
 __all__ = [
+    "OVERVIEW_LIMIT",
     "build_community_activity",
     "build_bot_signals",
     "build_contributor_scatter",
