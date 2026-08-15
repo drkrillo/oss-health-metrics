@@ -6,6 +6,7 @@ here so chart builders stay pure Plotly figures with no HTML knowledge.
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 
 import plotly.graph_objects as go
@@ -275,3 +276,65 @@ def kpi_card(
     <div class="value" style="color:{color}">{value}</div>
     <div class="label">{label}</div>
 </div>"""
+
+
+_CAB_WINDOWS = [("30d", "30d"), ("90d", "90d"), ("1y", "1Y"), ("all", "All")]
+_CAB_DEFS = [("normal", "Normal"), ("strict", "Strict")]
+
+
+def contributor_absence_card(
+    absence: dict,
+    default_window: str = "all",
+    default_def: str = "normal",
+) -> str:
+    """Interactive KPI card for the Contributor Absence Factor (bus factor).
+
+    Every (window, definition) value is embedded in the page; the window and
+    definition buttons swap the displayed number client-side — no server.
+    """
+    def _btns(css_cls: str, attr: str, opts: list, default: str) -> str:
+        html = f'<div class="range-btns {css_cls}">'
+        for val, label in opts:
+            active = ' class="active"' if val == default else ""
+            html += f'<button data-{attr}="{val}"{active}>{label}</button>'
+        return html + "</div>"
+
+    cur = absence.get(default_window, {}).get(default_def, {})
+    bus = cur.get("bus")
+    top = cur.get("top_pct")
+    value = "—" if bus is None else bus
+    sub = "" if top is None else f"top does {top}%"
+
+    return f"""<div class="kpi-card kpi-cab">
+    <div class="value" id="cab-value" style="color:{COLORS['danger']}">{value}</div>
+    <div class="label">Contributor Absence Factor <span class="cab-sub" id="cab-sub">{sub}</span></div>
+    {_btns("cab-win", "w", _CAB_WINDOWS, default_window)}
+    {_btns("cab-def", "d", _CAB_DEFS, default_def)}
+</div>
+<script>
+(function() {{
+    var DATA = {json.dumps(absence)};
+    var win = {json.dumps(default_window)}, dfn = {json.dumps(default_def)};
+    var valEl = document.getElementById('cab-value');
+    var subEl = document.getElementById('cab-sub');
+    function update() {{
+        var cell = (DATA[win] || {{}})[dfn] || {{}};
+        valEl.textContent = (cell.bus == null) ? '—' : cell.bus;
+        subEl.textContent = (cell.top_pct == null) ? '' : 'top does ' + cell.top_pct + '%';
+    }}
+    function wire(sel, attr, apply) {{
+        var btns = document.querySelectorAll(sel + ' button');
+        btns.forEach(function(b) {{
+            b.addEventListener('click', function() {{
+                btns.forEach(function(x) {{ x.classList.remove('active'); }});
+                b.classList.add('active');
+                apply(b.dataset[attr]);
+                update();
+            }});
+        }});
+    }}
+    wire('.cab-win', 'w', function(v) {{ win = v; }});
+    wire('.cab-def', 'd', function(v) {{ dfn = v; }});
+    update();
+}})();
+</script>"""

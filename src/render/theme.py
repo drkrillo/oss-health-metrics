@@ -94,6 +94,9 @@ header p { color: %(text_muted)s; font-size: 0.9rem; margin-top: 4px; }
 }
 .kpi-card .value { font-size: 2rem; font-weight: 700; }
 .kpi-card .label { color: %(text_muted)s; font-size: 0.85rem; margin-top: 4px; }
+.kpi-cab .range-btns { margin-top: 10px; margin-bottom: 0; flex-wrap: wrap; }
+.kpi-cab .cab-def { margin-top: 4px; }
+.kpi-cab .cab-sub { color: %(text_muted)s; font-size: 0.7rem; }
 
 .chart-section { margin-bottom: 40px; }
 .chart-section .section-header {

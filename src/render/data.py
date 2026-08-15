@@ -42,6 +42,24 @@ class DashboardData:
     def contributors(self) -> pd.DataFrame:
         return self.query("SELECT * FROM dim_contributors")
 
+    def contributor_absence(self) -> dict:
+        """Bus factor for every (window, definition), nested for the KPI card.
+
+        Shape: {window_key: {definition: {"bus": int|None, "top_pct": float}}}
+        so the card can switch client-side without a server.
+        """
+        rows = self.con.execute(
+            "SELECT window_key, definition, bus_factor, top_contributor_pct "
+            "FROM fct_contributor_absence"
+        ).fetchall()
+        out: dict = {}
+        for window_key, definition, bus, top_pct in rows:
+            out.setdefault(window_key, {})[definition] = {
+                "bus": int(bus) if bus is not None else None,
+                "top_pct": float(top_pct) if top_pct is not None else None,
+            }
+        return out
+
     def kpis(self) -> dict:
         """Aggregate KPI values for the overview cards."""
         total = self.con.execute(

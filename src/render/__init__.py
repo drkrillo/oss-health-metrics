@@ -25,6 +25,7 @@ from .data import DashboardData
 from .html import (
     NAV,
     clickable_plotly_div,
+    contributor_absence_card,
     kpi_card,
     page_shell,
     plotly_div,
@@ -55,6 +56,7 @@ def render_index(data: DashboardData) -> str:
     {kpi_card(kpis["waiting_on_maintainer"], "Waiting on Maintainer", COLORS["danger"])}
     {kpi_card(f'{kpis["median_response_hours"]}h', "Median Response Time", COLORS["accent"])}
     {kpi_card(f'{kpis["cycle_time_weeks"]}w', "Current Cycle Time", COLORS["purple"])}
+    {contributor_absence_card(data.contributor_absence())}
 </div>
 
 <div class="chart-section">
