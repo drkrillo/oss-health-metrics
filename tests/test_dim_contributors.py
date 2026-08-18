@@ -1,4 +1,4 @@
-"""Fork-to-first-action is a bot signal, so its scale has to mean something.
+"""Fork-to-first-action is a velocity signal, so its scale has to mean something.
 
 A negative delta reads on the chart as the fastest contributor in the repo,
 when it actually means the fork was never what triggered the activity.

@@ -1,4 +1,4 @@
-"""Contributor charts — timeline, scatter, and bot-signal detection."""
+"""Contributor charts — timeline, scatter, and response velocity."""
 
 from __future__ import annotations
 
@@ -60,14 +60,20 @@ def build_contributor_scatter(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
-def build_bot_signals(df: pd.DataFrame) -> go.Figure:
+def build_velocity_signals(df: pd.DataFrame) -> go.Figure:
     """Scatter: minutes_fork_to_first_action vs burst_events.
+
+    How quickly people act, not a judgement about them.  Maintainers are
+    excluded because their profile — high volume, fast replies, long runs of
+    closely spaced events — sits so far from everyone else that including them
+    compresses the rest of the population into a corner of the plot.
 
     Only contributors with a measurable fork-to-action delta are plotted.
     Forking and then never coming back leaves the x-axis undefined, so those
     rows are dropped here rather than silently discarded by Plotly.
     """
-    measured = df[df["minutes_fork_to_first_action"].notna()].copy()
+    outsiders = df[~df["is_maintainer"].fillna(False).astype(bool)]
+    measured = outsiders[outsiders["minutes_fork_to_first_action"].notna()].copy()
     if measured.empty:
         fig = go.Figure()
         fig.add_annotation(
@@ -92,5 +98,5 @@ def build_bot_signals(df: pd.DataFrame) -> go.Figure:
     )
     apply_layout(fig)
     fig.update_xaxes(title_text="Minutes from Fork to First Action")
-    fig.update_yaxes(title_text="Burst Events (<60s between actions)")
+    fig.update_yaxes(title_text="Actions less than 60s apart")
     return fig
