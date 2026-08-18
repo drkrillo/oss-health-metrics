@@ -8,6 +8,16 @@ import duckdb
 import pandas as pd
 
 
+def _opt_int(value) -> int | None:
+    """Cast to int, keeping SQL NULL and pandas NA as None.
+
+    A missing signal has to stay missing all the way to the page: rendering a
+    null fork-to-action delta as 0 would put somebody who never forked at the
+    top of a list sorted by how fast people act.
+    """
+    return None if value is None or pd.isna(value) else int(value)
+
+
 def _fmt_duration(minutes: float | None) -> str:
     """Format a minute count as the largest sensible unit: m / h / d."""
     if minutes is None:
@@ -127,6 +137,76 @@ class DashboardData:
                 "active": {"value": str(int(active)), "sub": "made a contribution"},
             }
         return out
+
+    def velocity_review(self, min_events: int = 2) -> tuple[list[dict], dict]:
+        """Accounts ranked by raw velocity, plus every event behind each one.
+
+        Maintainers are excluded for the same reason the velocity scatter
+        excludes them: their volume and pace sit far from everyone else and
+        compress the rest.  Accounts with a single event are excluded too — a
+        timeline is about the gaps, and one event has none.
+
+        There is deliberately no composite score.  The ordering is one visible
+        column, the rest are shown next to it, and the reader is the one who
+        draws conclusions.
+
+        Returns ``(accounts, timelines)``, where timelines is keyed by
+        ``"repo|author"`` and embedded whole so the panel can switch between
+        accounts with no server behind it.
+        """
+        accounts = self.con.execute(
+            "SELECT repo, author, total_events, burst_events, "
+            "       min_seconds_between_events, minutes_fork_to_first_action, "
+            "       prs_opened, prs_merged, funnel_stage "
+            "FROM dim_contributors "
+            "WHERE NOT is_maintainer AND total_events >= ? "
+            # Fastest fork-to-action first; accounts that never forked have no
+            # delta at all and sort last rather than sorting as instant.
+            "ORDER BY minutes_fork_to_first_action IS NULL, "
+            "         minutes_fork_to_first_action, burst_events DESC",
+            [min_events],
+        ).fetchdf()
+
+        keys = [f"{r.repo}|{r.author}" for r in accounts.itertuples()]
+        rows = [
+            {
+                "key": key,
+                "repo": r.repo,
+                "author": r.author,
+                "total_events": int(r.total_events),
+                "burst_events": int(r.burst_events),
+                "min_gap": _opt_int(r.min_seconds_between_events),
+                "fork_to_action": _opt_int(r.minutes_fork_to_first_action),
+                "prs_opened": int(r.prs_opened),
+                "prs_merged": int(r.prs_merged),
+                "stage": r.funnel_stage,
+                "profile": f"https://github.com/{r.author}",
+            }
+            for key, r in zip(keys, accounts.itertuples())
+        ]
+
+        events = self.con.execute(
+            "SELECT repo, author, event_at, event_type, item_number, detail, "
+            "       event_url, seconds_since_prev_event "
+            "FROM fct_contributor_events "
+            "ORDER BY repo, author, event_at"
+        ).fetchdf()
+
+        wanted = set(keys)
+        timelines: dict[str, list[dict]] = {key: [] for key in keys}
+        for e in events.itertuples():
+            key = f"{e.repo}|{e.author}"
+            if key not in wanted:
+                continue
+            timelines[key].append({
+                "at": e.event_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "type": e.event_type,
+                "item": _opt_int(e.item_number),
+                "detail": None if pd.isna(e.detail) else str(e.detail)[:80],
+                "url": None if pd.isna(e.event_url) else e.event_url,
+                "gap": _opt_int(e.seconds_since_prev_event),
+            })
+        return rows, timelines
 
     def kpis(self) -> dict:
         """Aggregate KPI values for the overview cards."""

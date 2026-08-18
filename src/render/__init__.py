@@ -16,7 +16,7 @@ from .charts import (
     build_community_activity,
     build_contributor_scatter,
     build_contributor_timeline,
-    build_bot_signals,
+    build_velocity_signals,
     build_funnel,
     build_open_items,
     build_response_times,
@@ -36,6 +36,7 @@ from .html import (
     windowed_kpi_card_2d,
 )
 from .theme import COLORS
+from .timeline import BURST_SECONDS, velocity_review_panel
 
 logger = logging.getLogger("oss.render")
 
@@ -136,8 +137,8 @@ def render_response_times(data: DashboardData) -> str:
 <header>
     <h1>Time to First Response</h1>
     <p>Monthly <em>median</em> hours from a PR/issue being opened to the first
-    response from a real person (author's own actions and bots excluded),
-    split by activity type — the CHAOSS-recommended trend view.</p>
+    response from a person — the author's own actions and automated accounts
+    are excluded — split by activity type. The CHAOSS-recommended trend view.</p>
 </header>
 <div class="chart-section">
     {time_series_div(build_response_times(data.response_times))}
@@ -167,10 +168,11 @@ def render_open_items(data: DashboardData) -> str:
 
 
 def render_contributors(data: DashboardData) -> str:
+    kpi_repos = data.kpis()["repos"]
     body = f"""
 <header>
     <h1>Contributors</h1>
-    <p>Funnel, behavior landscape, bot signals, and individual timelines.</p>
+    <p>Funnel, behaviour landscape, response velocity, and individual timelines.</p>
 </header>
 
 <div class="chart-section">
@@ -189,14 +191,31 @@ def render_contributors(data: DashboardData) -> str:
         {plotly_div(build_contributor_scatter(data.contributors))}
     </div>
     <div class="chart-section">
-        <h2>Bot/Agent Detection Signals</h2>
-        {plotly_div(build_bot_signals(data.contributors))}
+        <h2>Response Velocity</h2>
+        <p style="color:{COLORS['secondary']};font-size:0.85rem;margin-bottom:12px">
+            How long after forking somebody acted, and how many of their
+            events came less than a minute apart. Maintainers are excluded:
+            their volume and pace sit far enough from everyone else that
+            including them flattens the rest of the plot.</p>
+        {plotly_div(build_velocity_signals(data.contributors))}
     </div>
 </div>
 
 <div class="chart-section">
     <h2>Contributor Journey Timeline</h2>
     {time_series_div(build_contributor_timeline(data.contributor_events))}
+</div>
+
+<div class="chart-section">
+    <h2>Velocity Review</h2>
+    <p style="color:{COLORS['secondary']};font-size:0.85rem;margin-bottom:12px">
+        Every non-maintainer account with more than one event, sorted by how
+        fast it acted after forking. Click a column to re-sort, a row to open
+        that account's full timeline, and any event to see the interaction
+        itself on GitHub. Gaps of {BURST_SECONDS}s or less are marked.</p>
+    {velocity_review_panel(
+        "velocity", *data.velocity_review(),
+        multi_repo=len(kpi_repos) > 1)}
 </div>
 """
     return page_shell("Contributors — OSS Health", body, NAV)

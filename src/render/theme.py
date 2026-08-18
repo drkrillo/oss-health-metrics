@@ -121,6 +121,49 @@ footer {
 nav a { color: %(primary)s; text-decoration: none; margin: 0 12px; }
 nav a:hover { text-decoration: underline; }
 
+/* Velocity review: account table beside one account's timeline. */
+.tl-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) { .tl-panel { grid-template-columns: 1fr; } }
+.tl-list, .tl-detail {
+    background: %(card_bg)s; border: 1px solid %(border)s;
+    border-radius: 8px; max-height: 560px; overflow-y: auto;
+}
+.tl-table { width: 100%%; border-collapse: collapse; font-size: 0.8rem; }
+.tl-table th {
+    position: sticky; top: 0; background: %(card_bg)s; text-align: left;
+    padding: 10px 8px; border-bottom: 1px solid %(border)s;
+    cursor: pointer; user-select: none; white-space: nowrap;
+}
+.tl-table th:hover { color: %(primary)s; }
+.tl-table td { padding: 8px; border-bottom: 1px solid %(border)s; }
+.tl-table td.num, .tl-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tl-table tbody tr { cursor: pointer; }
+.tl-table tbody tr:hover { background: %(bg)s; }
+.tl-table tbody tr.active { background: %(bg)s; box-shadow: inset 2px 0 0 %(primary)s; }
+.tl-repo { color: %(text_muted)s; }
+
+.tl-detail { padding: 16px 20px; }
+.tl-head { display: flex; justify-content: space-between; align-items: baseline; }
+.tl-head h3 { font-size: 1rem; font-weight: 600; }
+.tl-head a { color: %(primary)s; text-decoration: none; font-size: 0.8rem; }
+.tl-sub { color: %(text_muted)s; font-size: 0.8rem; margin-bottom: 12px; }
+.tl-events { list-style: none; }
+.tl-event {
+    display: grid; grid-template-columns: 132px 12px 1fr;
+    align-items: baseline; gap: 8px; font-size: 0.82rem;
+}
+.tl-event time { color: %(text_muted)s; font-variant-numeric: tabular-nums; }
+.tl-dot { width: 8px; height: 8px; border-radius: 50%%; display: inline-block; }
+.tl-body a { color: %(text)s; text-decoration: none; }
+.tl-body a:hover { color: %(primary)s; text-decoration: underline; }
+/* The gap is the connector between two events, so it owns the vertical rule. */
+.tl-gap {
+    margin-left: 136px; padding: 2px 0 2px 10px;
+    border-left: 2px solid %(border)s;
+    color: %(text_muted)s; font-size: 0.72rem;
+}
+.tl-burst { border-left-color: %(danger)s; color: %(danger)s; font-weight: 600; }
+
 .range-btns {
     display: flex; gap: 4px; margin-bottom: 8px;
 }
