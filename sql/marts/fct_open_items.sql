@@ -33,20 +33,6 @@ open_items as (
     select * from open_issues
 ),
 
--- Who counts as the team.  The issue/PR payload carries no author_association
--- for the person who opened it, so the roster is derived from the roles GitHub
--- stamps on comments and reviews: anyone who has ever spoken as OWNER,
--- COLLABORATOR or MEMBER on a repo is treated as a maintainer of that repo.
-maintainers as (
-    select distinct repo, author
-    from (
-        select repo, author, author_association from stg_issue_comments
-        union all
-        select repo, author, author_association from stg_pr_reviews
-    )
-    where author_association in ('OWNER', 'COLLABORATOR', 'MEMBER')
-),
-
 interactions as (
     select c.repo, c.issue_number as item_number, c.author as actor,
            c.author_association, c.created_at as acted_at, 'comment' as action_type
@@ -106,7 +92,7 @@ select
                   then 'contributor' else 'nobody' end
     end as waiting_on
 from open_items oi
-left join maintainers m
+left join dim_maintainers m
     on oi.repo = m.repo and oi.author = m.author
 left join last_action la
     on oi.repo = la.repo and oi.item_number = la.item_number and la.rn = 1

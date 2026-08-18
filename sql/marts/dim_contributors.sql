@@ -57,6 +57,10 @@ select
     (s.prs_merged > 0) as has_merged_pr,
     (s.total_events > 1) as returned_after_first,
     (s.forked_at is not null) as has_fork,
+    -- Velocity views have to be able to drop these rows.  A maintainer's
+    -- pace and volume sit far from everyone else's, so leaving them in
+    -- compresses the rest of the population out of the visible range.
+    (m.author is not null) as is_maintainer,
     date_diff('minute', s.forked_at, faf.first_action_at) as minutes_fork_to_first_action,
     case
         when s.prs_opened > 1 and s.prs_merged > 0 then 'repeat_contributor'
@@ -68,3 +72,5 @@ select
 from summary s
 left join first_action_after_fork faf
     on s.repo = faf.repo and s.author = faf.author
+left join dim_maintainers m
+    on s.repo = m.repo and s.author = m.author

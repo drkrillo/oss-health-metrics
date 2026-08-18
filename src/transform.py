@@ -39,6 +39,7 @@ class Transformer:
 
     # Mart tables in dependency order: (table_name, sql_file)
     MARTS = [
+        ("dim_maintainers",        "marts/dim_maintainers.sql"),
         ("fct_contributor_events", "marts/fct_contributor_events.sql"),
         ("fct_response_times",     "marts/fct_response_times.sql"),
         ("fct_open_items",         "marts/fct_open_items.sql"),
