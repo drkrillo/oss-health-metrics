@@ -155,16 +155,15 @@ Insights shows a per-contributor timeline of commits only, ignoring comments,
 reviews, forks and issues.
 
 **What this does differently.** Six event types unified into one temporal table,
-which makes it possible to follow a contributor's full journey, spot automation
-patterns, compare people against each other, and see when somebody stopped
-showing up.
+which makes it possible to follow a contributor's full journey, compare the pace
+of one person against another, and see when somebody stopped showing up.
 
 Each event also carries `event_url`, pointing at the interaction itself rather
 than the item it happened on — the comment, not the thread. A timeline saying
-somebody posted three comments forty seconds apart is an accusation; one where
-each is a link the reader can open is evidence, and the reader decides. Forks are
-the exception: a fork is a repository, and it may since have been renamed, so
-there is nothing safe to link to.
+somebody posted three comments forty seconds apart is a number; one where each of
+the three opens the comment itself lets the reader read them and draw their own
+conclusion. Forks are the exception: a fork is a repository, and it may since have
+been renamed, so there is nothing safe to link to.
 
 **Status.** Implemented. Invariants in `tests/test_contributor_events.py`.
 
