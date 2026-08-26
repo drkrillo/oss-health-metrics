@@ -25,12 +25,12 @@ Then edit `.env`:
 
 ```
 GITHUB_TOKEN=<your token>
-GITHUB_TARGETS=owner/repo
+GITHUB_REPO=owner/repo
 ```
 
-`GITHUB_TARGETS` is comma-separated and accepts two forms. `owner/repo` takes a
-single repository; a bare `owner` resolves to every public repository under that
-user or organisation.
+`GITHUB_REPO` is a single `owner/repo`. One repository per warehouse — the marts
+aggregate over everything the CSVs hold, so mixing repositories produces numbers
+that belong to no project in particular.
 
 ## Running the pipeline
 
