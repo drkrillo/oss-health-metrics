@@ -82,11 +82,6 @@ class GitHubClient:
 
     # -- public endpoints ----------------------------------------------------
 
-    def get_repos(self, owner: str) -> list[dict]:
-        """Fetch all public repositories for an organization or user."""
-        url = f"{self.API_BASE}/users/{owner}/repos"
-        return self._paginate(url, {"type": "public"})
-
     def get_issues(self, owner: str, repo: str) -> list[dict]:
         """Fetch all issues (open + closed), excluding pull requests."""
         url = f"{self.API_BASE}/repos/{owner}/{repo}/issues"

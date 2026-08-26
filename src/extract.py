@@ -179,34 +179,28 @@ class GitHubExtractor:
 
     # -- orchestrator --------------------------------------------------------
 
-    def extract_all(self, targets: list[tuple[str, str]]) -> None:
-        """Extract issues, PRs, comments, forks, and reviews for all targets."""
-        all_issues: list[dict] = []
-        all_prs: list[dict] = []
-        all_comments: list[dict] = []
-        all_reviews: list[dict] = []
-        all_forks: list[dict] = []
+    def extract_all(self, owner: str, repo: str) -> None:
+        """Extract issues, PRs, comments, forks, and reviews for one repository.
 
-        for idx, (owner, repo) in enumerate(targets, 1):
-            logger.info("=== [%d/%d] %s/%s ===", idx, len(targets), owner, repo)
+        One repository per run, on purpose.  Every mart aggregates over whatever
+        lands in the CSVs, so two repositories in the same warehouse would share
+        a contributor funnel, a response-time median and a bus factor that
+        describe neither of them.
+        """
+        logger.info("=== %s/%s ===", owner, repo)
 
-            all_issues.extend(self.extract_issues(owner, repo))
-
-            prs = self.extract_pull_requests(owner, repo)
-            all_prs.extend(prs)
-
-            all_comments.extend(self.extract_issue_comments(owner, repo))
-            all_forks.extend(self.extract_forks(owner, repo))
-
-            pr_numbers = [pr["number"] for pr in prs]
-            all_reviews.extend(self.extract_pr_reviews(owner, repo, pr_numbers))
+        issues = self.extract_issues(owner, repo)
+        prs = self.extract_pull_requests(owner, repo)
+        comments = self.extract_issue_comments(owner, repo)
+        forks = self.extract_forks(owner, repo)
+        reviews = self.extract_pr_reviews(owner, repo, [pr["number"] for pr in prs])
 
         logger.info("=== Saving CSVs ===")
-        self._write_csv("issues.csv", all_issues, self.ISSUES_FIELDS)
-        self._write_csv("pull_requests.csv", all_prs, self.PULL_REQUESTS_FIELDS)
-        self._write_csv("issue_comments.csv", all_comments, self.ISSUE_COMMENTS_FIELDS)
-        self._write_csv("pr_reviews.csv", all_reviews, self.PR_REVIEWS_FIELDS)
-        self._write_csv("forks.csv", all_forks, self.FORKS_FIELDS)
+        self._write_csv("issues.csv", issues, self.ISSUES_FIELDS)
+        self._write_csv("pull_requests.csv", prs, self.PULL_REQUESTS_FIELDS)
+        self._write_csv("issue_comments.csv", comments, self.ISSUE_COMMENTS_FIELDS)
+        self._write_csv("pr_reviews.csv", reviews, self.PR_REVIEWS_FIELDS)
+        self._write_csv("forks.csv", forks, self.FORKS_FIELDS)
 
         logger.info("=== Done. Total API requests: %d ===", self._client.request_count)
 
@@ -214,29 +208,24 @@ class GitHubExtractor:
 # -- CLI entrypoint ---------------------------------------------------------
 
 
-def _resolve_targets(client: GitHubClient) -> list[tuple[str, str]]:
-    """Parse GITHUB_TARGETS env var into (owner, repo) tuples.
+def _resolve_repo() -> tuple[str, str]:
+    """Read GITHUB_REPO as a single "owner/repo" pair.
 
-    Supports two formats separated by commas:
-        - "owner/repo"  -> single repo
-        - "owner"       -> all public repos for that org/user
+    A dashboard describes one repository.  Accepting a list here would produce
+    marts that silently average unrelated projects together, so the shape of the
+    input is what enforces it.
     """
-    raw = os.getenv("GITHUB_TARGETS", "drkrillo")
-    targets: list[tuple[str, str]] = []
+    raw = (os.getenv("GITHUB_REPO") or "").strip()
+    if not raw:
+        raise SystemExit(
+            'GITHUB_REPO is not set. Add it to your .env, for example:\n'
+            "    GITHUB_REPO=drkrillo/good-first-issues"
+        )
+    if raw.count("/") != 1 or not all(raw.split("/")):
+        raise SystemExit(f'GITHUB_REPO must be "owner/repo", got: {raw!r}')
 
-    for entry in raw.split(","):
-        entry = entry.strip()
-        if not entry:
-            continue
-        if "/" in entry:
-            owner, repo = entry.split("/", 1)
-            targets.append((owner, repo))
-        else:
-            repos = client.get_repos(entry)
-            logger.info("Resolved %s -> %d repos", entry, len(repos))
-            targets.extend((entry, r["name"]) for r in repos)
-
-    return targets
+    owner, repo = raw.split("/")
+    return owner, repo
 
 
 def main() -> None:
@@ -247,11 +236,10 @@ def main() -> None:
     output_dir = Path(__file__).resolve().parent.parent / "data" / "raw"
     client = GitHubClient()
 
-    targets = _resolve_targets(client)
-    logger.info("Targets: %d repos", len(targets))
+    owner, repo = _resolve_repo()
 
     extractor = GitHubExtractor(client, output_dir)
-    extractor.extract_all(targets)
+    extractor.extract_all(owner, repo)
 
 
 if __name__ == "__main__":

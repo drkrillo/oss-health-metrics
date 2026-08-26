@@ -1,10 +1,10 @@
 """Every event has to be openable, not just locatable.
 
-A timeline saying somebody posted three comments forty seconds apart is an
-accusation.  One where each of the three is a link the reader can follow is
-evidence, and the maintainer gets to decide instead of being told.  The
-difference is the comment and review id GitHub returns for free, which this
-mart used to drop before the render layer ever saw it.
+A timeline saying somebody posted three comments forty seconds apart is a number.
+One where each of the three is a link the reader can follow lets them read the
+comments and judge for themselves.  The difference is the comment and review id
+GitHub returns for free, which this mart used to drop before the render layer
+ever saw it.
 
 Shared-fixture ids: comments 100 (alice, issue 1) and 101 (bob, issue 1),
 review 500 (dave, PR 2).
