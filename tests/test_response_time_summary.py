@@ -2,7 +2,7 @@
 
 The summary feeds a single headline number per (item type x window), so the
 quiet failures are: an ``all`` type that isn't PRs + issues, a window that
-reports more items than all-time, and — the point of the CHAOSS bot filter —
+reports more items than all-time, and, the point of the CHAOSS bot filter , 
 a bot comment counting as the first response.
 
 The bot case can't ride the shared fixture: adding a bot contributor would move
@@ -63,7 +63,7 @@ def _build(tmp_path: Path, csvs: dict) -> duckdb.DuckDBPyConnection:
 
 def test_a_bot_comment_is_not_the_first_response(tmp_path):
     # Issue #1 by maria: a bot comments at 09:05, a human at 15:00. The bot must
-    # not count, so the first response is the human's — 6 hours, not 0.
+    # not count, so the first response is the human's, 6 hours, not 0.
     csvs = {
         "forks.csv": ["repo,author,forked_at", "acme/w,zoe,2026-05-01T08:00:00Z"],
         "issues.csv": [

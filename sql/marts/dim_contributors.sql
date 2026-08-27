@@ -1,4 +1,4 @@
--- One row per contributor per repo — summary profile.
+-- One row per contributor per repo, summary profile.
 -- Derived from fct_contributor_events.
 -- Includes funnel stage for conversion rate visualization.
 

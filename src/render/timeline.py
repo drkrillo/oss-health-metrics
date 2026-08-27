@@ -1,4 +1,4 @@
-"""Velocity review — an account list beside one account's full timeline.
+"""Velocity review, an account list beside one account's full timeline.
 
 Lives outside ``html.py`` because it is a different kind of component: not a
 wrapper around a Plotly figure but hand-written markup, and the thing it shows
@@ -7,7 +7,7 @@ apart" is the text of each one and where it points, and a scatter plot carries
 neither.  So the timeline is an ordered list, the gap between two events is the
 connector between two rows, and every event links to the interaction itself.
 
-Everything is embedded and switched client-side, like the KPI cards — the site
+Everything is embedded and switched client-side, like the KPI cards, the site
 is static files on GitHub Pages and there is no server to ask.
 """
 
@@ -40,7 +40,7 @@ def script_json(payload: dict) -> str:
 
     Everything here comes from GitHub: issue titles, PR titles, account logins.
     ``json.dumps`` escapes quotes but leaves ``</script>`` intact, and the HTML
-    parser closes the block at that sequence even inside a JSON string — so an
+    parser closes the block at that sequence even inside a JSON string, so an
     issue titled ``</script><script>…`` gets its markup executed on the page.  ``<\\/`` is the same string to
     a JavaScript parser and invisible to the HTML one.
     """
@@ -127,7 +127,7 @@ def velocity_review_panel(
   var detail = document.getElementById('{uid}-detail');
   var tbody = root.querySelector('tbody');
 
-  // Serialising a text node escapes < > &, but not quotes — which is enough
+  // Serialising a text node escapes < > &, but not quotes, which is enough
   // for body text and not enough for the href attributes below.  Escaping
   // quotes too makes one function correct in both places.
   function esc(s) {{
@@ -166,7 +166,7 @@ def velocity_review_panel(
       var label = e.item ? '#' + e.item : '';
       var body = esc(e.type.replace(/_/g, ' ')) +
         (label ? ' <b>' + label + '</b>' : '') +
-        (e.detail ? ' — ' + esc(e.detail) : '');
+        (e.detail ? ', ' + esc(e.detail) : '');
       html += '<li class="tl-event">' +
         '<time>' + esc(e.at) + '</time>' +
         '<span class="tl-dot" style="background:' + color + '"></span>' +

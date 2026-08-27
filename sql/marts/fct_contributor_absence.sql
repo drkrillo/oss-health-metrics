@@ -1,17 +1,17 @@
 -- Contributor Absence Factor (a.k.a. Bus Factor).
 -- CHAOSS: "the smallest number of contributors responsible for 50% of total
--- contributions." A low number means the project leans on few people — if they
+-- contributions." A low number means the project leans on few people, if they
 -- leave, most of the activity leaves with them.
 --
--- One row per (repo, window, definition) — 4 windows x 2 definitions = up to 8
+-- One row per (repo, window, definition), 4 windows x 2 definitions = up to 8
 -- rows per repo. All values are precomputed so the dashboard card can switch
 -- between them client-side without a server.
 --
 -- Windows are trailing from today: 30d / 90d / 1y / all.
 -- Definitions of "contribution":
---   normal — everything except forks (a fork is interest, not a contribution;
+--   normal, everything except forks (a fork is interest, not a contribution;
 --            CHAOSS "Types of Contributions" does not list it)
---   strict — code work only: PRs opened, PRs merged, reviews given
+--   strict, code work only: PRs opened, PRs merged, reviews given
 --
 -- Forks are always excluded: a fork is not a contribution under CHAOSS.
 
@@ -72,7 +72,7 @@ select
     min(rnk) filter (where cum_n >= total_n / 2.0)  as bus_factor,
     count(*)                                          as total_contributors,
     max(total_n)                                      as total_contributions,
-    -- Share of the single biggest contributor — context for how skewed it is.
+    -- Share of the single biggest contributor, context for how skewed it is.
     round(max(n) * 100.0 / max(total_n), 1)          as top_contributor_pct
 from ranked
 group by repo, window_key, definition

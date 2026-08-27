@@ -56,7 +56,7 @@ class GitHubExtractor:
             writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
             writer.writeheader()
             writer.writerows(rows)
-        logger.info("Saved %s — %d rows", filename, len(rows))
+        logger.info("Saved %s, %d rows", filename, len(rows))
 
     def _log_api_calls(self) -> None:
         """Log running total of API requests made so far."""
@@ -149,7 +149,7 @@ class GitHubExtractor:
     ) -> list[dict]:
         """Extract review events for every PR in the repo.
 
-        Requires one API call per PR — the most expensive extraction.
+        Requires one API call per PR, the most expensive extraction.
         """
         logger.info("Extracting PR reviews for %d PRs...", len(pr_numbers))
         results: list[dict] = []

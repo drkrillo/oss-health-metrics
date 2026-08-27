@@ -1,4 +1,4 @@
-"""Chart builders — one function per metric, each returns a pure go.Figure."""
+"""Chart builders, one function per metric, each returns a pure go.Figure."""
 
 from .community import build_community_activity
 from .contributors import (

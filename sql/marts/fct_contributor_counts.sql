@@ -1,8 +1,8 @@
 -- Contributor counts per trailing window (30d / 90d / 1y / all): total vs active.
 --
---   total  — distinct people with ANY activity in the window (forks, comments,
+--   total , distinct people with ANY activity in the window (forks, comments,
 --            issues, PRs, reviews). The whole surface of people around the repo.
---   active — distinct people with a real CONTRIBUTION in the window. CHAOSS
+--   active, distinct people with a real CONTRIBUTION in the window. CHAOSS
 --            "Types of Contributions" does not count a fork as a contribution,
 --            so active excludes fork-only people.
 --

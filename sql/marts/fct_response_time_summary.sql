@@ -6,8 +6,8 @@
 --
 -- Window filters on the item's creation date: "of the items created in this
 -- period, how long until the first human response". Items with no response yet
--- (first_response_at is null) are excluded from the median — they have no
--- duration — but that absence is visible in the Who-Has-The-Ball view.
+-- (first_response_at is null) are excluded from the median. They have no
+-- duration, but that absence is visible in the Who-Has-The-Ball view.
 --
 -- Bots are already excluded upstream in fct_response_times.
 

@@ -1,4 +1,4 @@
-"""HTML generation helpers — page shell, KPI cards, Plotly div wrappers.
+"""HTML generation helpers, page shell, KPI cards, Plotly div wrappers.
 
 All interactive JS (range buttons, click-to-open, auto Y-rescale) lives
 here so chart builders stay pure Plotly figures with no HTML knowledge.
@@ -130,7 +130,7 @@ def time_series_div(
     var dataMax = allX.length ? new Date(Math.max.apply(null, allX)) : new Date();
     var dataMin = allX.length ? new Date(Math.min.apply(null, allX)) : new Date();
 
-    // Detect if Y-axis is categorical (string values — no numeric rescale)
+    // Detect if Y-axis is categorical (string values, no numeric rescale)
     var isCategoricalY = false;
     gd.data.forEach(function(t) {{
         if (t.y && t.y.length && typeof t.y[0] === 'string') isCategoricalY = true;
@@ -296,7 +296,7 @@ def windowed_kpi_card(
     uid:
         Unique element-id prefix (one card per uid on a page).
     data:
-        ``{window_key: {"value": str, "sub": str}}`` — values are preformatted.
+        ``{window_key: {"value": str, "sub": str}}``, values are preformatted.
     """
     btns = f'<div class="range-btns" data-cardwin="{uid}">'
     for val, lbl in _CAB_WINDOWS:
@@ -409,7 +409,7 @@ def contributor_absence_card(
     """Interactive KPI card for the Contributor Absence Factor (bus factor).
 
     Every (window, definition) value is embedded in the page; the window and
-    definition buttons swap the displayed number client-side — no server.
+    definition buttons swap the displayed number client-side, no server.
     """
     def _btns(css_cls: str, attr: str, opts: list, default: str) -> str:
         html = f'<div class="range-btns {css_cls}">'

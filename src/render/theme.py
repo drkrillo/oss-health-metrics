@@ -1,7 +1,7 @@
 """Design tokens and layout defaults for the OSS Health dashboard.
 
 Single source of truth for colours, typography, and Plotly layout config.
-Import from here — never hard-code colour values in chart or page modules.
+Import from here, never hard-code colour values in chart or page modules.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ EVENT_COLORS = {
 
 #: Legend/colour order for ``dim_contributors.funnel_stage``.  These stages are
 #: mutually exclusive (each contributor gets exactly one) and are NOT nested,
-#: so they order a legend — they are not the funnel itself.  The funnel chart
+#: so they order a legend. They are not the funnel itself.  The funnel chart
 #: defines its own nested steps in ``charts/funnel.py``.
 FUNNEL_ORDER = [
     "engaged", "forked", "pr_opened", "merged", "repeat_contributor",

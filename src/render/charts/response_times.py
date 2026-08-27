@@ -1,8 +1,8 @@
-"""Time to First Response — monthly median trend, split by activity type.
+"""Time to First Response, monthly median trend, split by activity type.
 
 CHAOSS recommends response-time *trends* by activity type over the raw
 per-item distribution. A scatter of every item is noise; the monthly median
-per type is the signal — and median (not mean) is what the CHAOSS
+per type is the signal, and median (not mean) is what the CHAOSS
 Responsiveness guide recommends, since it tracks how the wait is perceived.
 """
 

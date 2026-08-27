@@ -204,7 +204,7 @@ def test_each_event_carries_the_link_to_itself(dash):
 
 
 def test_the_gap_between_consecutive_events_is_carried_through(dash):
-    """carol forked and opened a PR 30 seconds later — the whole point."""
+    """carol forked and opened a PR 30 seconds later, the whole point."""
     _, timelines = dash.velocity_review()
     carol = timelines["acme/widget|carol"]
     assert carol[0]["gap"] is None, "the first event has nothing to compare to"

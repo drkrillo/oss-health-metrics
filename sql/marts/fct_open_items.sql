@@ -1,11 +1,11 @@
--- One row per open PR/issue — who needs to act next?
+-- One row per open PR/issue, who needs to act next?
 --
 -- "The ball" is response debt, not ownership.  Three states:
 --
---   maintainer  — somebody outside the team spoke last, or an outside item has
+--   maintainer , somebody outside the team spoke last, or an outside item has
 --                 gone unanswered.  This is the number that matters.
---   contributor — the team answered somebody; the outsider owes the next move.
---   nobody      — the team's own backlog.  No outsider is involved, so no one
+--   contributor, the team answered somebody; the outsider owes the next move.
+--   nobody     , the team's own backlog.  No outsider is involved, so no one
 --                 is being kept waiting.
 --
 -- The third state is why this query reads `opened_by` and not just the role of
@@ -85,7 +85,7 @@ select
         when la.last_actor is null
             then case when m.author is not null then 'nobody' else 'maintainer' end
         -- A maintainer spoke last, which is a handoff only if there is
-        -- somebody outside to hand it to — either because they opened the
+        -- somebody outside to hand it to, either because they opened the
         -- item or because they joined the thread.
         else case when m.author is null
                        or coalesce(ic.outside_interactions, 0) > 0

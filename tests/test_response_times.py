@@ -1,7 +1,7 @@
 """Attending a PR by merging it is a response, and has to be counted as one.
 
 Counting only comments and reviews drops every PR merged without discussion,
-which are the fastest ones — so the metric ends up describing the slow tail and
+which are the fastest ones, so the metric ends up describing the slow tail and
 calling it the median.
 """
 

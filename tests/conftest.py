@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from transform import Transformer  # noqa: E402  — needs the path above
+from transform import Transformer  # noqa: E402 (needs the path above)
 
 #: A repo small enough to reason about by hand, shaped around the cases that
 #: have broken the marts:

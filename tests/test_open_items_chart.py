@@ -1,8 +1,8 @@
 """The overview asks a narrower question than the detail page.
 
 One bar per open item is readable at eight rows and a 10,000px column at two
-hundred, so the overview answers "what is waiting on me right now" — response
-debt only, longest waits first, capped — while the detail page keeps every open
+hundred, so the overview answers "what is waiting on me right now", response
+debt only, longest waits first, capped, while the detail page keeps every open
 item and every ball state.  Both come out of the same builder, so the filtering
 and the cap are what these pin.
 """
@@ -91,7 +91,7 @@ def test_two_repos_sharing_an_item_number_stay_two_bars():
     """Plotly merges equal categories, so identity cannot be the item number.
 
     Issue numbers restart per repo, so pointing this at an org guarantees
-    collisions — and a merged bar is a row that vanished without an error.
+    collisions. A merged bar is a row that vanished without an error.
     """
     collide = pd.DataFrame([
         _item(5, 100, "maintainer", "Fix the thing", repo="acme/widget"),

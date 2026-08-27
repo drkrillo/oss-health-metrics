@@ -46,10 +46,10 @@ def test_levels_are_independent_cohorts_not_subsets():
     counts = {label: int(pred(SAMPLE).sum()) for label, pred in _LEVELS}
     d0 = _LEVELS[1][1](SAMPLE)
     d1 = _LEVELS[2][1](SAMPLE)
-    # The commenter is counted in D1 despite not being in D0 — proof the funnel
+    # The commenter is counted in D1 despite not being in D0: proof the funnel
     # does not require nesting.
     assert SAMPLE.loc[d1 & ~d0, "author"].tolist() == ["commenter-no-fork"]
-    assert counts["D1 — issue / comment / review"] == 3
+    assert counts["D1: issue / comment / review"] == 3
 
 
 def test_conversion_is_reported_as_percent_previous():

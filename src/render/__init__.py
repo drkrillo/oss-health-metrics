@@ -129,7 +129,7 @@ def render_weekly_pulse(data: DashboardData) -> str:
     {time_series_div(build_weekly_pulse(data.weekly_pulse))}
 </div>
 """
-    return page_shell("Weekly Pulse — OSS Health", body, NAV)
+    return page_shell("Weekly Pulse, OSS Health", body, NAV)
 
 
 def render_response_times(data: DashboardData) -> str:
@@ -137,21 +137,21 @@ def render_response_times(data: DashboardData) -> str:
 <header>
     <h1>Time to First Response</h1>
     <p>Monthly <em>median</em> hours from a PR/issue being opened to the first
-    response from a person — the author's own actions and automated accounts
-    are excluded — split by activity type. The CHAOSS-recommended trend view.</p>
+    response from a person, the author's own actions and automated accounts
+    are excluded, split by activity type. The CHAOSS-recommended trend view.</p>
 </header>
 <div class="chart-section">
     {time_series_div(build_response_times(data.response_times))}
 </div>
 """
-    return page_shell("Response Times — OSS Health", body, NAV)
+    return page_shell("Response Times, OSS Health", body, NAV)
 
 
 def render_open_items(data: DashboardData) -> str:
     body = f"""
 <header>
     <h1>Who Has The Ball</h1>
-    <p>Every open PR and issue — who needs to act next, and how long they've
+    <p>Every open PR and issue, who needs to act next, and how long they've
     been waiting. <span style="color:{COLORS['danger']}">Red</span> is response
     debt: somebody outside the team is waiting on a reply, and it is the only
     state the overview shows.
@@ -164,7 +164,7 @@ def render_open_items(data: DashboardData) -> str:
     {clickable_plotly_div(build_open_items(data.open_items), "open-items-detail")}
 </div>
 """
-    return page_shell("Open Items — OSS Health", body, NAV)
+    return page_shell("Open Items, OSS Health", body, NAV)
 
 
 def render_contributors(data: DashboardData) -> str:
@@ -218,7 +218,7 @@ def render_contributors(data: DashboardData) -> str:
         multi_repo=len(kpi_repos) > 1)}
 </div>
 """
-    return page_shell("Contributors — OSS Health", body, NAV)
+    return page_shell("Contributors, OSS Health", body, NAV)
 
 
 # ---------------------------------------------------------------------------

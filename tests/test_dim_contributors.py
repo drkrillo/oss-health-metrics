@@ -27,7 +27,7 @@ def test_activity_before_the_fork_does_not_count(marts):
     # alice commented on 2026-02-10, forked at 10:00 and opened a PR at 10:30.
     # Only the PR is after the fork.
     assert deltas["alice"] == 30
-    # carol forked at 10:00:00 and opened a PR at 10:00:30 — same minute.
+    # carol forked at 10:00:00 and opened a PR at 10:00:30, same minute.
     assert deltas["carol"] == 0
 
 

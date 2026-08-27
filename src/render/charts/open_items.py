@@ -1,4 +1,4 @@
-"""Who Has The Ball — horizontal bar chart for open PRs/issues."""
+"""Who Has The Ball, horizontal bar chart for open PRs/issues."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from ..theme import COLORS
 from ._layout import apply_layout
 
 #: Colour per ``fct_open_items.waiting_on`` state.  "nobody" is the team's own
-#: backlog — real, but not somebody being kept waiting — so it reads as muted
+#: backlog, real but not somebody being kept waiting, so it reads as muted
 #: rather than as either a debt (red) or a handoff (green).
 BALL_COLORS = {
     "maintainer": COLORS["danger"],
@@ -19,7 +19,7 @@ BALL_COLORS = {
 
 #: How many rows the overview shows.  One bar per open item is readable at
 #: eight and a 10,000px column at two hundred, and the overview is meant to be
-#: a to-do list rather than an inventory — the detail page keeps everything.
+#: a to-do list rather than an inventory. The detail page keeps everything.
 OVERVIEW_LIMIT = 5
 
 
@@ -55,11 +55,11 @@ def build_open_items(
     waiting_on: str | None = None,
     limit: int | None = None,
 ) -> go.Figure:
-    """Horizontal bar chart — who has the ball.
+    """Horizontal bar chart, who has the ball.
 
     ``waiting_on`` narrows to a single ball state and ``limit`` keeps only the
     longest-waiting rows.  The overview passes both to ask the one question a
-    maintainer opens a dashboard for — what is waiting on me right now — while
+    maintainer opens a dashboard for, what is waiting on me right now, while
     the detail page passes neither and shows every open item.
     """
     if df.empty:
@@ -83,7 +83,7 @@ def build_open_items(
         lambda r: f"https://github.com/{r['repo']}/issues/{r['item_number']}",
         axis=1,
     )
-    # The URL stays at index 3 — clickable_plotly_div reads it from there.
+    # The URL stays at index 3, clickable_plotly_div reads it from there.
     df["label"] = text
 
     fig = go.Figure(go.Bar(

@@ -7,13 +7,13 @@
 -- A merge counts as a response.  Attending a PR by merging it is the strongest
 -- response there is, and only someone with write access can do it, so there is
 -- no doubt about who acted.  Leaving it out silently dropped every PR that was
--- merged without discussion — on good-first-issues that was 64 of 114 PRs,
+-- merged without discussion, on good-first-issues that was 64 of 114 PRs,
 -- most of them merged within the hour, which biased the metric towards exactly
 -- the slow cases it was meant to detect.
 --
 -- Closing WITHOUT merging deliberately does not count: the API does not tell us
 -- who closed the item, and authors close their own PRs and issues all the time.
--- Those stay NULL, which makes `first_response_at is null` a real signal —
+-- Those stay NULL, which makes `first_response_at is null` a real signal , 
 -- items that got no engagement at all before being closed.
 
 with

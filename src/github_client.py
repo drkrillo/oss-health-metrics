@@ -34,7 +34,7 @@ class GitHubClient:
         self.request_count: int = 0
 
     def _build_headers(self) -> dict[str, str]:
-        """Build request headers once — they never change between calls."""
+        """Build request headers once. They never change between calls."""
         headers = {"Accept": "application/vnd.github+json"}
         if self._token:
             headers["Authorization"] = f"Bearer {self._token}"
@@ -68,7 +68,7 @@ class GitHubClient:
 
             remaining = resp.headers.get("X-RateLimit-Remaining", "?")
             logger.debug(
-                "[req #%d] %s — %d items (rate-limit remaining: %s)",
+                "[req #%d] %s, %d items (rate-limit remaining: %s)",
                 self.request_count,
                 url.split("?")[0],
                 len(data),
@@ -106,7 +106,7 @@ class GitHubClient:
     def get_forks(self, owner: str, repo: str) -> list[dict]:
         """Fetch all forks with creation timestamps.
 
-        Uses the repo-level endpoint — one paginated call returns every fork.
+        Uses the repo-level endpoint, one paginated call returns every fork.
         """
         url = f"{self.API_BASE}/repos/{owner}/{repo}/forks"
         return self._paginate(url, {"sort": "newest"})

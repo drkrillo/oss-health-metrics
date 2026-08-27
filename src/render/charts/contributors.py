@@ -1,4 +1,4 @@
-"""Contributor charts — timeline, scatter, and response velocity."""
+"""Contributor charts, timeline, scatter, and response velocity."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from ._layout import apply_layout, apply_time_axis
 
 
 def build_contributor_timeline(df: pd.DataFrame) -> go.Figure:
-    """Scatter timeline — each dot is an event, y-axis is contributor."""
+    """Scatter timeline, each dot is an event, y-axis is contributor."""
     top = df.groupby("author").size().nlargest(20).index.tolist()
     subset = df[df["author"].isin(top)].copy()
 
@@ -64,8 +64,8 @@ def build_velocity_signals(df: pd.DataFrame) -> go.Figure:
     """Scatter: minutes_fork_to_first_action vs burst_events.
 
     How quickly people act, not a judgement about them.  Maintainers are
-    excluded because their profile — high volume, fast replies, long runs of
-    closely spaced events — sits so far from everyone else that including them
+    excluded because their profile, high volume, fast replies, long runs of
+    closely spaced events, sits so far from everyone else that including them
     compresses the rest of the population into a corner of the plot.
 
     Only contributors with a measurable fork-to-action delta are plotted.

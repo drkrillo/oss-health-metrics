@@ -1,4 +1,4 @@
-"""Data access layer — loads mart tables from DuckDB into DataFrames."""
+"""Data access layer, loads mart tables from DuckDB into DataFrames."""
 
 from __future__ import annotations
 
@@ -143,7 +143,7 @@ class DashboardData:
 
         Maintainers are excluded for the same reason the velocity scatter
         excludes them: their volume and pace sit far from everyone else and
-        compress the rest.  Accounts with a single event are excluded too — a
+        compress the rest.  Accounts with a single event are excluded too, a
         timeline is about the gaps, and one event has none.
 
         There is deliberately no composite score.  The ordering is one visible
@@ -230,8 +230,8 @@ class DashboardData:
         return {
             "total_contributors": total,
             "waiting_on_maintainer": waiting,
-            # A median of 0 is a real answer — most PRs here are merged within
-            # the hour — so test for None, not for falsiness.
+            # A median of 0 is a real answer, most PRs here are merged within
+            # the hour, so test for None, not for falsiness.
             "median_response_hours": (
                 round(median_resp, 1) if median_resp is not None else "N/A"
             ),

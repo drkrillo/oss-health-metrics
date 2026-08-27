@@ -85,7 +85,7 @@ def test_closed_items_are_not_open_items(items):
 
 def test_an_outsider_item_nobody_answered_is_response_debt(items):
     # #1: opened by an outsider, not one word back.  The whole point of the
-    # metric — this is the newcomer who never hears anything.
+    # metric: this is the newcomer who never hears anything.
     assert items[1]["waiting_on"] == "maintainer"
     assert items[1]["last_actor"] is None
 

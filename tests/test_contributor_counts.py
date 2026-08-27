@@ -5,7 +5,7 @@ not a contribution under CHAOSS). So active can never exceed total, and a
 window can never hold more people than all-time.
 
 Every person in the shared fixture does more than fork, so it can't show the
-fork-only exclusion — that case gets its own tiny transform.
+fork-only exclusion. That case gets its own tiny transform.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ def counts(marts) -> dict:
 
 
 def test_all_window_matches_hand_count(counts):
-    # Fixture people: alice, bob, carol, dave, erin — all five did something
+    # Fixture people: alice, bob, carol, dave, erin, all five did something
     # beyond forking (carol opened a PR), so total and active are both 5.
     assert counts["all"]["total"] == 5
     assert counts["all"]["active"] == 5

@@ -1,4 +1,4 @@
-"""Weekly Pulse — Little's Law chart (WIP, throughput, cycle time)."""
+"""Weekly Pulse, Little's Law chart (WIP, throughput, cycle time)."""
 
 from __future__ import annotations
 

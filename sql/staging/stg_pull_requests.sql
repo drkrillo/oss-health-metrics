@@ -1,4 +1,4 @@
--- Timestamps go through UTC explicitly — see stg_issues.sql.
+-- Timestamps go through UTC explicitly, see stg_issues.sql.
 select
     repo,
     number          as pr_number,

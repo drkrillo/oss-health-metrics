@@ -2,7 +2,7 @@
 
 The API returns ``2026-03-01T09:00:00Z``.  ``read_csv_auto`` sniffs a column of
 those as TIMESTAMPTZ, and a plain ``::timestamp`` cast then rebases it to
-whatever zone the machine happens to be in — 06:00 in Buenos Aires, 09:00 on
+whatever zone the machine happens to be in: 06:00 in Buenos Aires, 09:00 on
 the UTC runner that builds the published site.  Nothing crashes; every date on
 the dashboard is just quietly wrong by the local offset, and events near
 midnight bucket into the wrong day, week and month.
@@ -80,7 +80,7 @@ def test_an_event_after_midnight_utc_stays_on_its_own_day(tz):
 
 
 def test_the_clock_and_the_data_agree_on_what_utc_is(tz):
-    """utc_now() is only right if staging is right too — they are one fix."""
+    """utc_now() is only right if staging is right too. They are one fix."""
     drift = tz.execute(
         "SELECT date_diff('second', utc_now(), now() AT TIME ZONE 'UTC')"
     ).fetchone()[0]

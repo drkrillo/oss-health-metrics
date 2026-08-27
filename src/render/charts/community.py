@@ -1,4 +1,4 @@
-"""Community Activity — stacked area chart of events by week."""
+"""Community Activity, stacked area chart of events by week."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from ._layout import apply_layout, apply_time_axis
 
 
 def build_community_activity(df: pd.DataFrame) -> go.Figure:
-    """Stacked area chart — all events by week, coloured by type."""
+    """Stacked area chart, all events by week, coloured by type."""
     df = df.copy()
     df["week"] = pd.to_datetime(df["event_at"]).dt.to_period("W").dt.start_time
 

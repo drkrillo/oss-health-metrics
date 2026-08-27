@@ -1,7 +1,7 @@
 """Transform raw CSVs into analytical tables using DuckDB.
 
 Reads CSVs from data/raw/, creates staging views and mart tables
-in a local DuckDB database. SQL lives in sql/ — this module just
+in a local DuckDB database. SQL lives in sql/. This module just
 orchestrates execution order and wires CSV paths into staging views.
 """
 
@@ -54,7 +54,7 @@ class Transformer:
     #: GitHub returns UTC and staging casts it to a naive ``TIMESTAMP``, but
     #: DuckDB's ``current_timestamp`` is a ``TIMESTAMP WITH TIME ZONE`` in the
     #: session's zone.  Comparing the two makes every "how long ago" answer
-    #: wrong by the local UTC offset — and right again under GitHub Actions,
+    #: wrong by the local UTC offset, and right again under GitHub Actions,
     #: which runs in UTC, so the dashboard would disagree with itself
     #: depending on who built it.  Every mart reads the clock through this
     #: macro so there is one definition of "now" and it is always UTC.

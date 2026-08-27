@@ -1,17 +1,17 @@
-"""Contributor Funnel — CHAOSS Conversion Rate developer levels.
+"""Contributor Funnel, CHAOSS Conversion Rate developer levels.
 
 CHAOSS defines the funnel as cohort sizes at successive developer levels, and
 the conversion rate as the ratio between adjacent levels:
 
-    Group A  — anyone who interacted
-    D0       — starred, watched, or forked
-    D1       — created issues, commented, or reviewed
-    D2       — opened a change request AND merged it
+    Group A , anyone who interacted
+    D0      , starred, watched, or forked
+    D1      , created issues, commented, or reviewed
+    D2      , opened a change request AND merged it
 
     CR(D0) = D0 / Group A     CR(D1) = D1 / D0     CR(D2) = D2 / D1
 
 These levels are NOT nested: someone can comment (D1) without forking (D0), or
-merge a PR (D2) without ever leaving a comment. So this is not a subset funnel —
+merge a PR (D2) without ever leaving a comment. So this is not a subset funnel , 
 each bar is an independent cohort and "percent previous" is the CHAOSS
 conversion rate between the two.
 
@@ -27,16 +27,16 @@ import plotly.graph_objects as go
 from ..theme import COLORS
 from ._layout import apply_layout
 
-#: CHAOSS developer levels, widest first. Each is an independent cohort — the
+#: CHAOSS developer levels, widest first. Each is an independent cohort, the
 #: predicates deliberately do NOT nest (see module docstring).
 _LEVELS: list[tuple[str, object]] = [
-    ("Group A — any activity",
+    ("Group A, any activity",
      lambda d: pd.Series(True, index=d.index)),
-    ("D0 — forked",
+    ("D0: forked",
      lambda d: d["has_fork"]),
-    ("D1 — issue / comment / review",
+    ("D1: issue / comment / review",
      lambda d: (d["comments_made"] > 0) | (d["reviews_given"] > 0) | (d["issues_opened"] > 0)),
-    ("D2 — opened & merged a PR",
+    ("D2: opened & merged a PR",
      lambda d: (d["prs_opened"] > 0) & (d["prs_merged"] > 0)),
 ]
 
