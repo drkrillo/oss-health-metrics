@@ -8,7 +8,7 @@ Community health metrics for a GitHub repository, built as static files. Impleme
 [CHAOSS](https://chaoss.community) metric definitions over Python and DuckDB, and
 renders a dashboard you can host on GitHub Pages.
 
-**No server, no database to run, no SaaS.**
+No server, no database to run, no SaaS.
 
 </div>
 
@@ -49,7 +49,7 @@ Implementing a metric definition means deciding what it does not say. These thre
 changed the numbers enough to be worth stating up front:
 
 **A merge counts as a first response.** Counting only comments dropped 64 of 114
-pull requests — the fastest ones — and published the median of what was left.
+pull requests, the fastest ones, and published the median of what was left.
 
 **Conversion levels are not nested.** CHAOSS developer levels D0/D1/D2 describe
 independent cohorts: somebody can comment without ever forking, or land a merge
@@ -105,7 +105,7 @@ render/        DuckDB -> Plotly + hand-written HTML       ->  output/*.html
 
 SQL lives in `sql/`, never inside Python. Staging views type the raw CSVs; ten mart
 tables hold the metrics. Adding a metric means adding a `.sql` file and a chart
-builder — see [workflow.md](workflow.md).
+builder. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Tests
 

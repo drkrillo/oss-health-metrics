@@ -28,7 +28,7 @@ GITHUB_TOKEN=<your token>
 GITHUB_REPO=owner/repo
 ```
 
-`GITHUB_REPO` is a single `owner/repo`. One repository per warehouse — the marts
+`GITHUB_REPO` is a single `owner/repo`. One repository per warehouse. The marts
 aggregate over everything the CSVs hold, so mixing repositories produces numbers
 that belong to no project in particular.
 
@@ -53,8 +53,8 @@ PYTHONPATH=src python -m src.render
 Open `output/index.html` in a browser to see the result.
 
 Only stage 1 touches the network. While working on a mart or a chart, re-run
-stages 2 and 3 alone and leave the CSVs in place — extraction is the slow part
-because reviews cost one API call per pull request.
+stages 2 and 3 alone and leave the CSVs in place. Extraction is the slow part,
+since reviews cost one API call per pull request.
 
 ## Tests
 
@@ -67,18 +67,18 @@ They are not about coverage. They cover the invariants a metric can violate
 while still running clean and looking plausible, which are exactly the ones that
 get published as if they were true:
 
-- `test_funnel.py` — funnel stages are nested. When they stop being nested the
+- `test_funnel.py`: funnel stages are nested. When they stop being nested the
   conversions still render and stop meaning anything.
-- `test_dim_contributors.py` — the fork-to-first-action delta is never negative.
-- `test_response_times.py` — a merge counts as a first response; a close without
+- `test_dim_contributors.py`: the fork-to-first-action delta is never negative.
+- `test_response_times.py`: a merge counts as a first response, a close without
   a merge does not.
-- `test_open_items.py` — response debt is told apart from the team's own backlog.
-- `test_staging_timestamps.py` — timestamps enter the warehouse as the UTC
-  GitHub sent, not rebased into the machine's local zone.
-- `test_maintainers.py` — the maintainer roster is derived consistently, and
+- `test_open_items.py`: response debt is told apart from the team's own backlog.
+- `test_staging_timestamps.py`: timestamps enter the warehouse as the UTC GitHub
+  sent, not rebased into the machine's local zone.
+- `test_maintainers.py`: the maintainer roster is derived consistently, and
   maintainers stay out of behavioural rankings.
-- `test_velocity_review.py` — text written by third parties cannot execute on
-  the published page.
+- `test_velocity_review.py`: text written by third parties cannot execute on the
+  published page.
 
 The SQL tests run the real `Transformer` over a small dataset (`FIXTURE_CSVS` in
 `tests/conftest.py`) using the queries in `sql/`, so breaking a mart fails here.
@@ -117,9 +117,9 @@ oss-health-metrics/
 
 ### Naming
 
-- `stg_` — staging view: reads a CSV, casts types, renames columns.
-- `fct_` — fact table: events and activity.
-- `dim_` — dimension: entities such as contributors and maintainers.
+- `stg_`: staging view. Reads a CSV, casts types, renames columns.
+- `fct_`: fact table. Events and activity.
+- `dim_`: dimension. Entities such as contributors and maintainers.
 
 ### Tables
 
@@ -154,7 +154,7 @@ con.sql('SELECT * FROM fct_open_items').show()
 2. Add `extract_x()` and `X_FIELDS` to `src/extract.py`.
 3. Call it from `extract_all()`.
 4. Create `sql/staging/stg_x.sql`, using `{source}` as the placeholder for the
-   CSV. Cast timestamps with `::timestamptz AT TIME ZONE 'UTC'` — see
+   CSV. Cast timestamps with `::timestamptz AT TIME ZONE 'UTC'`. See
    `stg_issues.sql` for why a plain `::timestamp` is wrong.
 5. Register it in `Transformer.STAGING` in `src/transform.py`.
 6. Run the full pipeline.
@@ -164,7 +164,7 @@ con.sql('SELECT * FROM fct_open_items').show()
 1. Create `sql/marts/fct_x.sql`. It may reference staging views and other marts.
    Read the clock through `utc_now()` rather than `current_timestamp`, which is
    timezone-aware and would be compared against naive UTC values.
-2. Register it in `Transformer.MARTS` in `src/transform.py`. **Order matters** —
+2. Register it in `Transformer.MARTS` in `src/transform.py`. **Order matters**:
    the list executes top to bottom, so a mart must come after everything it
    selects from.
 3. Add an accessor to `src/render/data.py`.
