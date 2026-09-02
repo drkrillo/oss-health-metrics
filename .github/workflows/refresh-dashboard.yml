@@ -1,0 +1,104 @@
+name: "Refresh dashboard"
+
+on:
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-dashboard
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Extract from the GitHub API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ vars.TARGET_REPO || 'drkrillo/good-first-issues' }}
+        run: PYTHONPATH=src python src/extract.py
+
+      - name: Check the extraction produced data
+        run: |
+          fail=0
+          for f in data/raw/*.csv; do
+            [ -e "$f" ] || { echo "::error::extract wrote no CSVs at all"; exit 1; }
+            rows=$(( $(wc -l < "$f") - 1 ))
+            echo "  $(basename "$f"): $rows rows"
+            [ "$rows" -gt 0 ] || { echo "::error::$(basename "$f") has no rows"; fail=1; }
+          done
+          exit $fail
+
+      - name: Transform into the warehouse
+        run: PYTHONPATH=src python src/transform.py
+
+      - name: Render the dashboard
+        run: PYTHONPATH=src python -m src.render
+
+      - name: Upload the raw extraction
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-csvs
+          path: data/raw/
+          retention-days: 14
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add output
+
+          if git diff --staged --quiet; then
+            echo "Dashboard unchanged, nothing to commit."
+          else
+            git commit -m "chore: refresh dashboard $(date -u +%Y-%m-%d) [skip ci]"
+            git push origin main
+          fi
+
+  deploy:
+    needs: refresh
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the rendered dashboard
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
