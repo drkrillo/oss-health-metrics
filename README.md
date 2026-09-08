@@ -26,7 +26,7 @@ Those are the questions this measures.
 
 **[→ drkrillo.github.io/oss-health-metrics](https://drkrillo.github.io/oss-health-metrics/)**
 
-Regenerated weekly against [drkrillo/good-first-issues](https://github.com/drkrillo/good-first-issues).
+Regenerated daily against [drkrillo/good-first-issues](https://github.com/drkrillo/good-first-issues).
 
 ---
 
@@ -92,6 +92,28 @@ PYTHONPATH=src python -m src.render       # DuckDB      -> output/*.html
 `GITHUB_REPO` is one `owner/repo`. A dashboard describes a single repository: every
 mart aggregates over whatever is in the CSVs, so two repositories in one warehouse
 would share a funnel, a median and a bus factor that describe neither of them.
+
+`GITHUB_TOKEN` is a personal access token. **For a public repository it needs no
+scopes at all**: a token with nothing ticked still raises the API limit from 60
+requests an hour to 5,000, and one run costs a few hundred. Private repositories
+need the `repo` scope.
+
+## Running it on a schedule
+
+`.github/workflows/refresh-dashboard.yml` refreshes the dashboard daily and
+publishes it to Pages. Fork the repository, enable Actions, and set the
+`TARGET_REPO` variable to the repository you want to measure.
+
+You do not need to create a token for this. Actions mints its own `GITHUB_TOKEN`
+per run, which reads any public repository. Add a personal access token as the
+`ANALYSIS_TOKEN` secret only if you need one of these:
+
+- the repository you measure is **private** (the built-in token cannot read it)
+- the repository is **large**: the built-in token allows 1,000 requests an hour,
+  a personal one 5,000
+
+The workflow picks up `ANALYSIS_TOKEN` when it exists and falls back to the
+built-in token when it does not.
 
 ## How it works
 
