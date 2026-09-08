@@ -31,7 +31,7 @@ jobs:
 
       - name: Extract from the GitHub API
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ANALYSIS_TOKEN || secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ vars.TARGET_REPO || 'drkrillo/good-first-issues' }}
         run: PYTHONPATH=src python src/extract.py
 
@@ -78,6 +78,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      contents: read
       pages: write
       id-token: write
 
